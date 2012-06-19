@@ -1,75 +1,50 @@
 package com.imaginea.qctree;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
 /**
- * A Cell is a set of dimensions.
+ * A Cell is a representation of a set dimension values. Example: (a1, b1, c1)
+ * is a cell. Here a1,b1 and c1 are dimension values corresponding to dimensions
+ * a, b and c. These dimensions are ordered as per the definition given in
+ * table.json. So, the value of a cell at 0th index (Here a1) always corresponds
+ * to dimension a.
  */
-public class Cell implements Comparable<Cell> {
+
+public class Cell implements Comparable<Cell>, Cloneable {
 
   public static final String DIMENSION_VALUE_ANY = "*";
 
-  private final Map<String, String> dimensions;
-  private int dimCount;
-  private final int numOfDim;
-  private final Map<String, Double> measures;
-  private int measureCount;
-  private final int numOfMeasures;
+  protected final String[] dimensions;
 
-  public Cell(int numOfDim) {
-    this(numOfDim, 0);
+  public Cell(String[] dims) {
+    dimensions = new String[dims.length];
+    System.arraycopy(dims, 0, dimensions, 0, dims.length);
   }
 
-  public Cell(int numOfDim, int numOfMeasures) {
-    this.numOfDim = numOfDim;
-    dimensions = new LinkedHashMap<String, String>(numOfDim);
-    this.numOfMeasures = numOfMeasures;
-    measures = new LinkedHashMap<String, Double>(numOfMeasures);
-  }
-
-  public void addDimension(String dimName, String dimValue) {
-    if (++dimCount > numOfDim) {
-      throw new RuntimeException("Can't add beyond " + numOfDim + " entries.");
+  @Override
+  protected Object clone() {
+    Cell clone;
+    try {
+      clone = (Cell) super.clone();
+    } catch (CloneNotSupportedException e) {
+      e.printStackTrace();
+      clone = this;
     }
-    dimensions.put(dimName, dimValue);
+    return clone;
   }
 
-  public void addMeasure(String measureName, Double measureValue) {
-    if (++measureCount > numOfMeasures) {
-      throw new RuntimeException("Can't add beyond " + numOfMeasures
-          + " entries.");
-    }
-    measures.put(measureName, measureValue);
+  public void setDimensionAt(int index, String dimValue) {
+    dimensions[index] = dimValue;
   }
 
-  public void setDimension(String dimName, String dimValue) {
-    if (dimensions.get(dimName) == null) {
-      throw new RuntimeException("Can't modify value of a non existant key");
-    }
-    dimensions.put(dimName, dimValue);
-  }
-
-  public Map<String, String> getDimensions() {
-    return Collections.unmodifiableMap(dimensions);
-  }
-
-  public Map<String, Double> getMeasures() {
-    return Collections.unmodifiableMap(measures);
+  public String[] getDimensions() {
+    return dimensions;
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("[ ");
-    for (Entry<String, String> dim : dimensions.entrySet()) {
-      sb.append(dim.getKey()).append("=").append(dim.getValue()).append(' ');
-    }
-    for (Entry<String, Double> m : measures.entrySet()) {
-      sb.append(m.getKey()).append("=").append(m.getValue()).append(' ');
+    for (String dim : dimensions) {
+      sb.append(dim).append(' ');
     }
     sb.append("]");
     return sb.toString();
@@ -78,14 +53,10 @@ public class Cell implements Comparable<Cell> {
   @Override
   public int compareTo(Cell that) {
     int diff = 0;
-    Iterator<String> thatItr = that.dimensions.values().iterator();
-    Iterator<String> thisItr = this.dimensions.values().iterator();
-
-    while (thatItr.hasNext()) {
-      String thatDim = thatItr.next();
-      String thisDim = thisItr.next();
-      if (thatDim != DIMENSION_VALUE_ANY && thisDim != DIMENSION_VALUE_ANY) {
-        diff = thatDim.compareTo(thisDim);
+    for (int idx = 0; idx < dimensions.length; ++idx) {
+      if (that.dimensions[idx] != DIMENSION_VALUE_ANY
+          && dimensions[idx] != DIMENSION_VALUE_ANY) {
+        diff = that.dimensions[idx].compareTo(dimensions[idx]);
         if (diff != 0) {
           break;
         }

@@ -11,13 +11,19 @@ public class Partition {
   private String ID;
   private Cell ub;
   private Cell lb;
-  private List<Cell> baseCells;
+  private List<Row> baseCells;
   private Aggregable measure = new Average();
   private Double aggregateVal;
 
-  public Partition(String ID, List<Cell> cells) {
+  private Table baseTable;
+
+  public Partition(String ID, List<Row> cells) {
     this.ID = ID;
     this.baseCells = cells;
+  }
+
+  public Partition inducedBy(Cell cell) {
+    return null;
   }
 
   public double computeAggregateAndGet() {
@@ -28,22 +34,19 @@ public class Partition {
     return aggregateVal;
   }
 
-  private String getCommonValueAppearedInAll(String dimName) {
+  private String getDimensionValueAt(int colIndex) {
     boolean hasAppeared = true;
     String commonVal = null;
     for (Cell cell : baseCells) {
       if (cell.compareTo(ub) != 0) {
         continue;
       }
-      for (Entry<String, String> dim : cell.getDimensions().entrySet()) {
-        if (dim.getKey() == dimName) {
-          if (commonVal != null && !commonVal.equals(dim.getValue())) {
-            hasAppeared = false;
-            break;
-          } else {
-            commonVal = dim.getValue();
-          }
-        }
+      if (commonVal != null
+          && !commonVal.equals(cell.getDimensions()[colIndex])) {
+        hasAppeared = false;
+        break;
+      } else {
+        commonVal = cell.getDimensions()[colIndex];
       }
       if (!hasAppeared) {
         break;
@@ -69,24 +72,18 @@ public class Partition {
    * @param cell
    *          input cell
    * @return Upper bound of the partition.
+   * @throws CloneNotSupportedException
    */
   public Cell upperBoundOf(Cell cell) {
     if (ub != null) {
       return ub;
     }
-
-    ub = new Cell(4); // HARD CODED. Address this.
-
-    for (Entry<String, String> dim : cell.getDimensions().entrySet()) {
-      ub.addDimension(dim.getKey(), dim.getValue());
-    }
-
-    for (Entry<String, String> dim : ub.getDimensions().entrySet()) {
-      String dimValue = dim.getValue();
-      if (dimValue != Cell.DIMENSION_VALUE_ANY) {
+    ub = (Cell) cell.clone();
+    for(int colIndex = 0; colIndex < ub.getDimensions().length; ++colIndex) {
+      if (ub.getDimensions()[colIndex] != Cell.DIMENSION_VALUE_ANY) {
         continue;
       }
-      ub.setDimension(dim.getKey(), getCommonValueAppearedInAll(dim.getKey()));
+      ub.setDimensionAt(colIndex, getDimensionValueAt(colIndex));
     }
     return ub;
   }
