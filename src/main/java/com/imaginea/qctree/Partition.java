@@ -35,7 +35,6 @@ public class Partition {
   }
 
   private String getDimensionValueAt(int colIndex) {
-    boolean hasAppeared = true;
     String commonVal = null;
     for (Cell cell : baseCells) {
       if (cell.compareTo(ub) != 0) {
@@ -43,16 +42,13 @@ public class Partition {
       }
       if (commonVal != null
           && !commonVal.equals(cell.getDimensions()[colIndex])) {
-        hasAppeared = false;
+        commonVal = Cell.DIMENSION_VALUE_ANY;
         break;
       } else {
         commonVal = cell.getDimensions()[colIndex];
       }
-      if (!hasAppeared) {
-        break;
-      }
     }
-    return hasAppeared ? commonVal : Cell.DIMENSION_VALUE_ANY;
+    return commonVal;
   }
 
   /**
