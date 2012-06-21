@@ -1,95 +1,55 @@
 package com.imaginea.qctree;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map.Entry;
-
-import com.imaginea.qctree.measures.Aggregable;
-import com.imaginea.qctree.measures.Average;
+import java.util.Map;
+import java.util.Set;
 
 public class Partition {
 
-  private String ID;
-  private Cell ub;
-  private Cell lb;
   private List<Row> baseCells;
-  private Aggregable measure = new Average();
-  private Double aggregateVal;
+  private Map<Integer, Set<String>> baseCols;
 
-  private Table baseTable;
+  private static Table baseTable = Table.getTable();
 
-  public Partition(String ID, List<Row> cells) {
-    this.ID = ID;
+  public Partition(List<Row> cells, Map<Integer, Set<String>> baseCols) {
     this.baseCells = cells;
+    this.baseCols = baseCols;
   }
 
-  public Partition inducedBy(Cell cell) {
-    return null;
-  }
-
-  public double computeAggregateAndGet() {
-    if (aggregateVal != null) {
-      return aggregateVal;
-    }
-    aggregateVal = measure.aggregate(baseCells, ub);
-    return aggregateVal;
-  }
-
-  private String getDimensionValueAt(int colIndex) {
-    String commonVal = null;
-    for (Cell cell : baseCells) {
-      if (cell.compareTo(ub) != 0) {
-        continue;
-      }
-      if (commonVal != null
-          && !commonVal.equals(cell.getDimensions()[colIndex])) {
-        commonVal = Cell.DIMENSION_VALUE_ANY;
-        break;
-      } else {
-        commonVal = cell.getDimensions()[colIndex];
+  public static Partition inducedBy(Cell cell) {
+    List<Row> rows = new LinkedList<Row>();
+    Map<Integer, Set<String>> cols = new LinkedHashMap<Integer, Set<String>>();
+    for (Row row : baseTable.getRows()) {
+      if (cell.compareTo(row) == 0) {
+        rows.add(row);
+        String[] colValues = row.getDimensions();
+        Set<String> colList;
+        for (int i = 0; i < colValues.length; ++i) {
+          if (cols.get(Integer.valueOf(i)) == null) {
+            colList = new LinkedHashSet<String>();
+            cols.put(Integer.valueOf(i), colList);
+          }
+          cols.get(Integer.valueOf(i)).add(colValues[i]);
+        }
       }
     }
-    return commonVal;
+    return new Partition(rows, cols);
   }
 
-  /**
-   * Upper bound of a partition will be computed as follows.
-   * 
-   * 1. For any dimension, if the value of that dimension is non-*, upper bound
-   * also will have the same dimension value as that of the input cell.
-   * 2.Otherwise, for all the dimensions, for which input cell has value *, we
-   * scan all the base cells in the partition, and if there is any value (x)
-   * repeated in the partition, we replace the value of the ith dimension of
-   * upper bound by repeated value (x).
-   * 
-   * Ex: For the partition {(a2,b1,c1),(a2,b2,c1),(a1,b1,c2)}, upper bound of
-   * the cell (a2, *, *) is (a2, *, c1). Here c1 has appeared in all the tuples
-   * but not b1.
-   * 
-   * @param cell
-   *          input cell
-   * @return Upper bound of the partition.
-   * @throws CloneNotSupportedException
-   */
-  public Cell upperBoundOf(Cell cell) {
-    if (ub != null) {
-      return ub;
-    }
-    ub = (Cell) cell.clone();
-    for(int colIndex = 0; colIndex < ub.getDimensions().length; ++colIndex) {
-      if (ub.getDimensions()[colIndex] != Cell.DIMENSION_VALUE_ANY) {
-        continue;
-      }
-      ub.setDimensionAt(colIndex, getDimensionValueAt(colIndex));
-    }
-    return ub;
+  public List<Row> getBaseCells() {
+    return Collections.unmodifiableList(baseCells);
   }
 
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class ID").append("=").append(ID).append('\n');
-    sb.append("Upper Bound").append("=").append(ub).append('\n');
-    sb.append("Lower Bound").append("=").append(lb);
-    return sb.toString();
+  public Set<String> getUniqueColumnValues(int colIndex) {
+    return baseCols.get(Integer.valueOf(colIndex));
   }
+
+  public boolean isEmpty() {
+    return baseCells.size() == 0;
+  }
+
 }

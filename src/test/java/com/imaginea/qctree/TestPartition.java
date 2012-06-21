@@ -1,49 +1,46 @@
 package com.imaginea.qctree;
 
-import java.util.LinkedList;
-import java.util.List;
+import static com.imaginea.qctree.Cell.DIMENSION_VALUE_ANY;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import static com.imaginea.qctree.Cell.DIMENSION_VALUE_ANY;
-
 public class TestPartition {
 
-  private Partition partition;
+  private static Table table;
 
   @Before
   public void setUp() throws Exception {
-    Row row1 = new Row(new String[] { "a2", "b1", "c1", "d1" },
-        new double[] { 6d });
-    Row row2 = new Row(new String[] { "a2", "b1", "c2", "d1" },
-        new double[] { 12d });
-    Row row3 = new Row(new String[] { "a1", "b2", "c2", "d2" },
-        new double[] { 9d });
+    table = Table.getTable();
 
-    List<Row> rows = new LinkedList<Row>();
-    rows.add(row1);
-    rows.add(row2);
-    rows.add(row3);
-    partition = new Partition("i0", rows);
+    Row row1 = new Row(new String[] { "S1", "P1", "s" }, new double[] { 6d });
+    Row row2 = new Row(new String[] { "S1", "P2", "s" }, new double[] { 12d });
+    Row row3 = new Row(new String[] { "S2", "P1", "f" }, new double[] { 9d });
+
+    table.addRow(row1);
+    table.addRow(row2);
+    table.addRow(row3);
   }
 
   @Test
   public void shouldReturnUpperBound() throws Exception {
-    Cell cell = new Cell(new String[] { "a2", DIMENSION_VALUE_ANY,
-        DIMENSION_VALUE_ANY, DIMENSION_VALUE_ANY });
-    Cell ub = partition.upperBoundOf(cell);
-    Assert.assertArrayEquals("", new String[] { "a2", "b1",
-        DIMENSION_VALUE_ANY, "d1" }, ub.getDimensions());
+    Cell cell = new Cell(new String[] { "S1", DIMENSION_VALUE_ANY,
+        DIMENSION_VALUE_ANY });
+    Partition partition = Partition.inducedBy(cell);
+    Class temp = new Class(partition);
+    Cell ub = temp.upperBoundOf(cell);
+    Assert.assertArrayEquals("",
+        new String[] { "S1", DIMENSION_VALUE_ANY, "s" }, ub.getDimensions());
   }
 
   @Test
   public void shouldComputeAggregate() throws Exception {
-    Cell cell = new Cell(new String[] { "a2", DIMENSION_VALUE_ANY,
-        DIMENSION_VALUE_ANY, DIMENSION_VALUE_ANY });
-    partition.upperBoundOf(cell);
-    double avg = partition.computeAggregateAndGet();
+    Cell cell = new Cell(new String[] { "S1", DIMENSION_VALUE_ANY,
+        DIMENSION_VALUE_ANY });
+    Partition partition = Partition.inducedBy(cell);
+    Class temp = new Class(partition);
+    double avg = temp.computeAggregateAndGet();
     Assert.assertEquals(9d, avg, 0.0d);
   }
 }

@@ -8,7 +8,7 @@ package com.imaginea.qctree;
  * to dimension a.
  */
 
-public class Cell implements Comparable<Cell>, Cloneable {
+public class Cell implements Comparable<Cell> {
 
   public static final String DIMENSION_VALUE_ANY = "*";
 
@@ -19,16 +19,9 @@ public class Cell implements Comparable<Cell>, Cloneable {
     System.arraycopy(dims, 0, dimensions, 0, dims.length);
   }
 
-  @Override
-  protected Object clone() {
-    Cell clone;
-    try {
-      clone = (Cell) super.clone();
-    } catch (CloneNotSupportedException e) {
-      e.printStackTrace();
-      clone = this;
-    }
-    return clone;
+  public Cell(Cell cell) {
+    dimensions = new String[cell.dimensions.length];
+    System.arraycopy(cell.dimensions, 0, dimensions, 0, dimensions.length);
   }
 
   public void setDimensionAt(int index, String dimValue) {
@@ -37,6 +30,10 @@ public class Cell implements Comparable<Cell>, Cloneable {
 
   public String[] getDimensions() {
     return dimensions;
+  }
+
+  public String getDimensionAt(int index) {
+    return dimensions[index];
   }
 
   @Override
@@ -63,6 +60,26 @@ public class Cell implements Comparable<Cell>, Cloneable {
       }
     }
     return diff;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (obj.getClass() != this.getClass()) {
+      return false;
+    }
+    Cell that = (Cell) obj;
+    for (int idx = 0; idx < dimensions.length; ++idx) {
+      if (!that.dimensions[idx].equals(this.dimensions[idx])) {
+        return false;
+      }
+    }
+    return true;
   }
 
 }

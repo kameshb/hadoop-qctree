@@ -4,12 +4,14 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
+import com.imaginea.qctree.QCCube;
 import com.imaginea.qctree.Row;
 import com.imaginea.qctree.Table;
 
 public class QCMapper extends Mapper<LongWritable, Text, Text, LongWritable> {
 
   private Table baseTable = Table.getTable();
+  private QCCube cube = new QCCube();
 
   @Override
   public void run(Context context) throws java.io.IOException,
@@ -29,9 +31,10 @@ public class QCMapper extends Mapper<LongWritable, Text, Text, LongWritable> {
         ms[i] = Double.parseDouble(values[noOfDim + i]);
       }
       row = new Row(dim, ms);
+      System.out.println("Adding row : " + row);
       baseTable.addRow(row);
+
+      cube.construct();
     }
-
-  };
-
+  }
 }
