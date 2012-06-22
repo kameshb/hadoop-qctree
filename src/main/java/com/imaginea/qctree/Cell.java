@@ -47,19 +47,43 @@ public class Cell implements Comparable<Cell> {
     return sb.toString();
   }
 
-  @Override
-  public int compareTo(Cell that) {
-    int diff = 0;
+  /**
+   * 
+   * A cell covers a base table tuple (t) whenever there exists a roll-up path
+   * from t to c.
+   * 
+   * A row rolls up to a cell c, all dimensions of the row should agree with
+   * cell, except for the dimensions having value “*”.
+   * 
+   * Ex: For the partition {(a2,b1,c1),(a2,b2,c1),(a1,b1,c2)}, cell (a2, *, *)
+   * covers both (a2,b1,c1) and (a2,b2,c1) but not (a1,b1,c2).
+   * 
+   * @param that
+   *          Takes a base table row as a parameter.
+   * @return true if this cell covers the base table tuple.
+   * 
+   */
+  public boolean covers(Cell that) {
+    boolean hasCovered = true;
     for (int idx = 0; idx < dimensions.length; ++idx) {
-      if (that.dimensions[idx] != DIMENSION_VALUE_ANY
-          && dimensions[idx] != DIMENSION_VALUE_ANY) {
-        diff = that.dimensions[idx].compareTo(dimensions[idx]);
-        if (diff != 0) {
+      if (dimensions[idx] != DIMENSION_VALUE_ANY) {
+        hasCovered = that.dimensions[idx].equals(dimensions[idx]);
+        if (hasCovered == false) {
           break;
         }
       }
     }
-    return diff;
+    return hasCovered;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int hashcode = 1;
+    for (int idx = 0; idx < dimensions.length; ++idx) {
+      hashcode = hashcode * prime + dimensions[idx].hashCode();
+    }
+    return hashcode;
   }
 
   @Override
@@ -80,6 +104,24 @@ public class Cell implements Comparable<Cell> {
       }
     }
     return true;
+  }
+
+  @Override
+  public int compareTo(Cell o) {
+    int diff = 0;
+    for (int idx = 0; idx < o.dimensions.length; ++idx) {
+      if (o.dimensions[idx] != DIMENSION_VALUE_ANY
+          && dimensions[idx] != DIMENSION_VALUE_ANY) {
+        diff = o.dimensions[idx].compareTo(dimensions[idx]);
+        if (diff != 0) {
+          break;
+        }
+      } else {
+        diff = dimensions[idx] == DIMENSION_VALUE_ANY ? 1 : -1;
+        break;
+      }
+    }
+    return diff;
   }
 
 }

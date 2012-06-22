@@ -1,20 +1,20 @@
 package com.imaginea.qctree;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class QCCube {
 
-  private List<Class> classes;
+  private Set<Class> classes;
   private int classId;
 
   public QCCube() {
-    classes = new ArrayList<Class>();
+    classes = new HashSet<Class>();
   }
 
-  public List<Class> getClasses() {
-    return Collections.unmodifiableList(classes);
+  public Set<Class> getClasses() {
+    return Collections.unmodifiableSet(classes);
   }
 
   public void construct() {

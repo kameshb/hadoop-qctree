@@ -1,9 +1,13 @@
 package com.imaginea.qctree;
 
+import static com.imaginea.qctree.Cell.DIMENSION_VALUE_ANY;
+
+import java.util.Set;
+
 import com.imaginea.qctree.measures.Aggregable;
 import com.imaginea.qctree.measures.Average;
 
-public class Class {
+public class Class implements Comparable<Class> {
   private int clsID;
   private int chdID;
   private Cell ub;
@@ -17,9 +21,7 @@ public class Class {
     this.partition = partition;
   }
 
-  // Only for testing purpose
   public Class() {
-
   }
 
   public void setClassID(int clsID) {
@@ -38,12 +40,10 @@ public class Class {
     this.lb = lb;
   }
 
-  // Only for testing purpose
   public void setUpperBound(Cell ub) {
     this.ub = ub;
   }
 
-  // Only for testing purpose
   public void setAggregate(double aggr) {
     this.aggregateVal = aggr;
   }
@@ -57,20 +57,8 @@ public class Class {
   }
 
   private String getDimensionValueAt(int colIndex) {
-    String commonVal = null;
-    for (Cell cell : partition.getBaseCells()) {
-      if (cell.compareTo(ub) != 0) {
-        continue;
-      }
-      if (commonVal != null
-          && !commonVal.equals(cell.getDimensions()[colIndex])) {
-        commonVal = Cell.DIMENSION_VALUE_ANY;
-        break;
-      } else {
-        commonVal = cell.getDimensions()[colIndex];
-      }
-    }
-    return commonVal;
+    Set<String> values = partition.getUniqueColumnValues(colIndex);
+    return values.size() == 1 ? values.iterator().next() : DIMENSION_VALUE_ANY;
   }
 
   /**
@@ -98,12 +86,24 @@ public class Class {
     }
     ub = new Cell(cell);
     for (int colIndex = 0; colIndex < ub.getDimensions().length; ++colIndex) {
-      if (ub.getDimensions()[colIndex] != Cell.DIMENSION_VALUE_ANY) {
+      if (ub.getDimensions()[colIndex] != DIMENSION_VALUE_ANY) {
         continue;
       }
       ub.setDimensionAt(colIndex, getDimensionValueAt(colIndex));
     }
     return ub;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int hashcode = 1;
+    hashcode = hashcode * prime + clsID;
+    hashcode = hashcode * prime + chdID;
+    hashcode = hashcode * prime + aggregateVal.hashCode();
+    hashcode = hashcode * prime + ub.hashCode();
+    hashcode = hashcode * prime + lb.hashCode();
+    return hashcode;
   }
 
   @Override
@@ -122,7 +122,7 @@ public class Class {
     if (that.clsID != this.clsID || that.chdID != this.chdID) {
       return false;
     }
-    if( Double.compare(this.aggregateVal, that.aggregateVal) != 0) {
+    if (Double.compare(this.aggregateVal, that.aggregateVal) != 0) {
       return false;
     }
     if (!that.ub.equals(this.ub) || !that.lb.equals(this.lb)) {
@@ -140,6 +140,11 @@ public class Class {
     sb.append("Lattice Child : ").append(chdID).append(' ');
     sb.append("Agg : ").append(aggregateVal);
     return sb.toString();
+  }
+
+  @Override
+  public int compareTo(Class that) {
+    return this.ub.compareTo(that.ub);
   }
 
 }

@@ -24,7 +24,7 @@ public class Partition {
     List<Row> rows = new LinkedList<Row>();
     Map<Integer, Set<String>> cols = new LinkedHashMap<Integer, Set<String>>();
     for (Row row : baseTable.getRows()) {
-      if (cell.compareTo(row) == 0) {
+      if (cell.covers(row)) {
         rows.add(row);
         String[] colValues = row.getDimensions();
         Set<String> colList;

@@ -2,6 +2,7 @@ package com.imaginea.qctree;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import junitx.framework.ListAssert;
 
@@ -36,7 +37,8 @@ public class TestQuotientCube {
 
     QCCube cube = new QCCube();
     cube.construct();
-    List<Class> classes = cube.getClasses();
+    Set<Class> classes = cube.getClasses();
+    List<Class> actual = new ArrayList<Class>(classes);
 
     List<Class> expected = new ArrayList<Class>();
     Class clazz = new Class();
@@ -138,7 +140,7 @@ public class TestQuotientCube {
 
     expected.add(clazz);
 
-    ListAssert.assertEquals("Mismatch in construction.", expected, classes);
+    ListAssert.assertEquals("Mismatch in construction.", expected, actual);
   }
 
   @Test
@@ -154,7 +156,8 @@ public class TestQuotientCube {
 
     QCCube cube = new QCCube();
     cube.construct();
-    List<Class> classes = cube.getClasses();
+    Set<Class> classes = cube.getClasses();
+    List<Class> actual = new ArrayList<Class>(classes);
 
     List<Class> expected = new ArrayList<Class>();
     Class clazz = new Class();
@@ -274,7 +277,7 @@ public class TestQuotientCube {
 
     expected.add(clazz);
 
-    ListAssert.assertEquals("Mismatch in construction.", expected, classes);
+    ListAssert.assertEquals("Mismatch in construction.", expected, actual);
   }
 
 }

@@ -4,9 +4,9 @@ import java.net.URI;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.NLineInputFormat;
-import org.apache.hadoop.mapreduce.lib.output.NullOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
@@ -36,10 +36,11 @@ public class QCDriver implements Tool {
     qcJob.setJarByClass(QCDriver.class);
     qcJob.setMapperClass(QCMapper.class);
     qcJob.setNumReduceTasks(0);
+    qcJob.setMapOutputKeyClass(NullWritable.class);
+    qcJob.setMapOutputValueClass(QCTree.class);
     qcJob.setInputFormatClass(NLineInputFormat.class);
     NLineInputFormat.setInputPaths(qcJob, args[0]);
     NLineInputFormat.setNumLinesPerSplit(qcJob, 1000);
-    qcJob.setOutputFormatClass(NullOutputFormat.class);
     return qcJob.waitForCompletion(true) ? 0 : -1;
   }
 

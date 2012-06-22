@@ -2,6 +2,7 @@ package com.imaginea.qctree;
 
 import static com.imaginea.qctree.Cell.DIMENSION_VALUE_ANY;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,6 +24,11 @@ public class TestPartition {
     table.addRow(row3);
   }
 
+  @After
+  public void cleanUp() throws Exception {
+    table.clear();
+  }
+
   @Test
   public void shouldReturnUpperBound() throws Exception {
     Cell cell = new Cell(new String[] { "S1", DIMENSION_VALUE_ANY,
@@ -32,6 +38,21 @@ public class TestPartition {
     Cell ub = temp.upperBoundOf(cell);
     Assert.assertArrayEquals("",
         new String[] { "S1", DIMENSION_VALUE_ANY, "s" }, ub.getDimensions());
+  }
+
+  @Test
+  public void shouldReturnUpperBoundNonStartUpperBound() throws Exception {
+    table.clear();
+    Row row1 = new Row(new String[] { "S1", "P1", "s" }, new double[] { 6d });
+    table.addRow(row1);
+
+    Cell cell = new Cell(new String[] { DIMENSION_VALUE_ANY,
+        DIMENSION_VALUE_ANY, DIMENSION_VALUE_ANY });
+    Partition partition = Partition.inducedBy(cell);
+    Class temp = new Class(partition);
+    Cell ub = temp.upperBoundOf(cell);
+    Assert.assertArrayEquals(new String[] { "S1", "P1", "s" },
+        ub.getDimensions());
   }
 
   @Test
