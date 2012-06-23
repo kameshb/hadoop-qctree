@@ -10,14 +10,14 @@ import java.util.Set;
 
 public class Partition {
 
-  private List<Row> baseCells;
-  private Map<Integer, Set<String>> baseCols;
+  private List<Row> rows;
+  private Map<Integer, Set<String>> cols;
 
   private static Table baseTable = Table.getTable();
 
-  public Partition(List<Row> cells, Map<Integer, Set<String>> baseCols) {
-    this.baseCells = cells;
-    this.baseCols = baseCols;
+  public Partition(List<Row> rows, Map<Integer, Set<String>> cols) {
+    this.rows = rows;
+    this.cols = cols;
   }
 
   public static Partition inducedBy(Cell cell) {
@@ -41,15 +41,15 @@ public class Partition {
   }
 
   public List<Row> getBaseCells() {
-    return Collections.unmodifiableList(baseCells);
+    return Collections.unmodifiableList(rows);
   }
 
   public Set<String> getUniqueColumnValues(int colIndex) {
-    return baseCols.get(Integer.valueOf(colIndex));
+    return cols.get(Integer.valueOf(colIndex));
   }
 
   public boolean isEmpty() {
-    return baseCells.size() == 0;
+    return rows.size() == 0;
   }
 
 }
