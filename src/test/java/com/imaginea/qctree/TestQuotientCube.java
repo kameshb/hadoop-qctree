@@ -35,8 +35,7 @@ public class TestQuotientCube {
     table.addRow(row2);
     table.addRow(row3);
 
-    QCCube cube = new QCCube();
-    cube.construct();
+    QCCube cube = QCCube.construct();
     Set<Class> classes = cube.getClasses();
     List<Class> actual = new ArrayList<Class>(classes);
 
@@ -154,8 +153,7 @@ public class TestQuotientCube {
     table.addRow(row2);
     table.addRow(row3);
 
-    QCCube cube = new QCCube();
-    cube.construct();
+    QCCube cube = QCCube.construct();
     Set<Class> classes = cube.getClasses();
     List<Class> actual = new ArrayList<Class>(classes);
 

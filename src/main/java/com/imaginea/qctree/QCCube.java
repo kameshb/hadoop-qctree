@@ -17,7 +17,7 @@ public class QCCube {
     return Collections.unmodifiableSet(classes);
   }
 
-  public void construct() {
+  public static QCCube construct() {
     Table table = Table.getTable();
     String[] rootStr = new String[table.getDimensionHeaders().size()];
     for (int i = 0; i < rootStr.length; ++i) {
@@ -25,7 +25,9 @@ public class QCCube {
     }
     Cell root = new Cell(rootStr);
     Partition base = new Partition(table.getRows(), table.getColumns());
-    DFS(root, base, 0, -1);
+    QCCube cube = new QCCube();
+    cube.DFS(root, base, 0, -1);
+    return cube;
   }
 
   private void DFS(Cell cell, Partition partition, int k, int chdID) {

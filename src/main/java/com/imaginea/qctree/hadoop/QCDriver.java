@@ -40,7 +40,7 @@ public class QCDriver implements Tool {
     qcJob.setMapOutputValueClass(QCTree.class);
     qcJob.setInputFormatClass(NLineInputFormat.class);
     NLineInputFormat.setInputPaths(qcJob, args[0]);
-    NLineInputFormat.setNumLinesPerSplit(qcJob, 1000);
+    NLineInputFormat.setNumLinesPerSplit(qcJob, 10000);
     return qcJob.waitForCompletion(true) ? 0 : -1;
   }
 
