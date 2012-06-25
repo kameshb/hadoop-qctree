@@ -43,9 +43,17 @@ public class Class implements Comparable<Class> {
   public void setUpperBound(Cell ub) {
     this.ub = ub;
   }
+  
+  public Cell getUpperBound() {
+    return this.ub;
+  }
 
   public void setAggregate(double aggr) {
     this.aggregateVal = aggr;
+  }
+  
+  public double getAggregate() {
+    return this.aggregateVal;
   }
 
   public double computeAggregateAndGet() {
