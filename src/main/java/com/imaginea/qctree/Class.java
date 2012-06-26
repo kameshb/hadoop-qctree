@@ -43,7 +43,7 @@ public class Class implements Comparable<Class> {
   public void setUpperBound(Cell ub) {
     this.ub = ub;
   }
-  
+
   public Cell getUpperBound() {
     return this.ub;
   }
@@ -51,7 +51,7 @@ public class Class implements Comparable<Class> {
   public void setAggregate(double aggr) {
     this.aggregateVal = aggr;
   }
-  
+
   public double getAggregate() {
     return this.aggregateVal;
   }
@@ -127,13 +127,13 @@ public class Class implements Comparable<Class> {
     }
     Class that = (Class) obj;
 
+    if (!that.ub.equals(this.ub) || !that.lb.equals(this.lb)) {
+      return false;
+    }
     if (that.clsID != this.clsID || that.chdID != this.chdID) {
       return false;
     }
     if (Double.compare(this.aggregateVal, that.aggregateVal) != 0) {
-      return false;
-    }
-    if (!that.ub.equals(this.ub) || !that.lb.equals(this.lb)) {
       return false;
     }
     return true;
@@ -152,7 +152,8 @@ public class Class implements Comparable<Class> {
 
   @Override
   public int compareTo(Class that) {
-    return this.ub.compareTo(that.ub);
+    int diff = this.ub.compareTo(that.ub);
+    return diff == 0 ? 1 : diff;
   }
 
 }

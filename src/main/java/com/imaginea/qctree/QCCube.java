@@ -1,8 +1,8 @@
 package com.imaginea.qctree;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 public class QCCube {
 
@@ -10,7 +10,7 @@ public class QCCube {
   private int classId;
 
   public QCCube() {
-    classes = new HashSet<Class>();
+    classes = new TreeSet<Class>();
   }
 
   public Set<Class> getClasses() {
