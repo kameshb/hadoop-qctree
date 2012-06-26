@@ -7,6 +7,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableUtils;
 
@@ -22,6 +24,7 @@ import com.imaginea.qctree.Table;
  */
 public class QCTree implements Writable {
 
+  private static final Log LOG = LogFactory.getLog(QCTree.class);
   private static final String NONE = "NONE";
   private final QCNode EMPTY = new QCNode(NONE, NONE, 0.0);
   private final QCNode root;
@@ -35,12 +38,10 @@ public class QCTree implements Writable {
   }
 
   public static QCTree build(final QCCube qCube) {
-    boolean first = true;
     QCTree tree = null;
     for (Class clazz : qCube.getClasses()) {
-      if (first) {
+      if (tree == null) {
         tree = new QCTree(clazz);
-        first = false;
       } else {
         tree.add(clazz);
       }
@@ -65,6 +66,7 @@ public class QCTree implements Writable {
   }
 
   public boolean add(Class clazz) {
+    LOG.info("Adding tree edge : " + clazz);
     List<String> headers = Table.getTable().getDimensionHeaders();
     String[] dimensions = clazz.getUpperBound().getDimensions();
     QCNode parent = root;
