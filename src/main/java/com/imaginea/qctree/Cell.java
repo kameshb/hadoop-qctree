@@ -110,15 +110,18 @@ public class Cell implements Comparable<Cell> {
   public int compareTo(Cell o) {
     int diff = 0;
     for (int idx = 0; idx < o.dimensions.length; ++idx) {
-      if (o.dimensions[idx] != DIMENSION_VALUE_ANY
-          && dimensions[idx] != DIMENSION_VALUE_ANY) {
-        diff = o.dimensions[idx].compareTo(dimensions[idx]);
+      if (dimensions[idx] == DIMENSION_VALUE_ANY
+          && o.dimensions[idx] == DIMENSION_VALUE_ANY) {
+        continue;
+      } else if (dimensions[idx] == DIMENSION_VALUE_ANY
+          || o.dimensions[idx] == DIMENSION_VALUE_ANY) {
+        diff = dimensions[idx] == DIMENSION_VALUE_ANY ? -1 : 1;
+        break;
+      } else {
+        diff = dimensions[idx].compareTo(o.dimensions[idx]);
         if (diff != 0) {
           break;
         }
-      } else {
-        diff = dimensions[idx] == DIMENSION_VALUE_ANY ? 1 : -1;
-        break;
       }
     }
     return diff;
