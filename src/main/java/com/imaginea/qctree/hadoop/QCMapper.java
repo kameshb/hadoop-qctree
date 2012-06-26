@@ -1,5 +1,7 @@
 package com.imaginea.qctree.hadoop;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
@@ -11,6 +13,7 @@ import com.imaginea.qctree.Table;
 
 public class QCMapper extends Mapper<LongWritable, Text, NullWritable, QCTree> {
 
+  private static final Log LOG = LogFactory.getLog(QCMapper.class);
   private Table baseTable = Table.getTable();
 
   @Override
@@ -31,9 +34,11 @@ public class QCMapper extends Mapper<LongWritable, Text, NullWritable, QCTree> {
         ms[i] = Double.parseDouble(values[noOfDim + i]);
       }
       row = new Row(dim, ms);
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Adding row : " + row);
+      }
       baseTable.addRow(row);
     }
-
     QCCube cube = QCCube.construct();
     QCTree tree = QCTree.build(cube);
 
