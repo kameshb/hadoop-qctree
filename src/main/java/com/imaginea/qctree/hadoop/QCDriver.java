@@ -7,6 +7,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.NLineInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
@@ -26,8 +27,8 @@ public class QCDriver implements Tool {
 
   @Override
   public int run(String[] args) throws Exception {
-    if (args.length != 1) {
-      System.err.println("Specify Input Path.");
+    if (args.length != 2) {
+      System.err.println("USAGE: QCDriver <input-path> <output-path>");
       System.exit(-1);
     }
     Job qcJob = Job.getInstance(getConf(), "Quotient Cube");
@@ -39,6 +40,7 @@ public class QCDriver implements Tool {
     qcJob.setMapOutputKeyClass(NullWritable.class);
     qcJob.setMapOutputValueClass(QCTree.class);
     qcJob.setInputFormatClass(NLineInputFormat.class);
+    FileOutputFormat.setOutputPath(qcJob, new Path(args[1]));
     NLineInputFormat.setInputPaths(qcJob, args[0]);
     NLineInputFormat.setNumLinesPerSplit(qcJob, 10000);
     return qcJob.waitForCompletion(true) ? 0 : -1;
