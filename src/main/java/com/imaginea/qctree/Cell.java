@@ -11,6 +11,15 @@ package com.imaginea.qctree;
 public class Cell implements Comparable<Cell> {
 
   public static final String DIMENSION_VALUE_ANY = "*";
+  public static final Cell ROOT;
+  static {
+    int size = Table.getTable().getDimensionHeaders().size();
+    String[] rootStr = new String[size];
+    for (int i = 0; i < rootStr.length; ++i) {
+      rootStr[i] = Cell.DIMENSION_VALUE_ANY;
+    }
+    ROOT = new Cell(rootStr);
+  }
 
   protected final String[] dimensions;
 

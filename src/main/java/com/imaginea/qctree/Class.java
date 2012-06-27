@@ -9,7 +9,7 @@ import com.imaginea.qctree.measures.Average;
 
 public class Class implements Comparable<Class> {
   private int clsID;
-  private int chdID;
+  private Class child;
   private Cell ub;
   private Cell lb;
   private Double aggregateVal;
@@ -32,12 +32,20 @@ public class Class implements Comparable<Class> {
     return this.clsID;
   }
 
-  public void setChildID(int chdID) {
-    this.chdID = chdID;
+  public void setChild(Class child) {
+    this.child = child;
+  }
+  
+  public Class getChild() {
+    return this.child;
   }
 
   public void setLowerBound(Cell lb) {
     this.lb = lb;
+  }
+  
+  public Cell getLowerBound() {
+    return this.lb;
   }
 
   public void setUpperBound(Cell ub) {
@@ -106,14 +114,18 @@ public class Class implements Comparable<Class> {
   public int hashCode() {
     final int prime = 31;
     int hashcode = 1;
-    hashcode = hashcode * prime + clsID;
-    hashcode = hashcode * prime + chdID;
-    hashcode = hashcode * prime + aggregateVal.hashCode();
-    hashcode = hashcode * prime + ub.hashCode();
+//    hashcode = hashcode * prime + clsID;
+//    hashcode = hashcode * prime + child.getClassID();
+//    hashcode = hashcode * prime + aggregateVal.hashCode();
     hashcode = hashcode * prime + lb.hashCode();
+    hashcode = hashcode * prime + ub.hashCode();
     return hashcode;
   }
 
+  /*
+   * None of the temporary Classes will have the same upper bound and 
+   * lower bound. So it is safe to check those two properties.
+   */
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
@@ -127,15 +139,15 @@ public class Class implements Comparable<Class> {
     }
     Class that = (Class) obj;
 
-    if (!that.ub.equals(this.ub) || !that.lb.equals(this.lb)) {
+    if (!that.lb.equals(this.lb) || !that.ub.equals(this.ub)) {
       return false;
     }
-    if (that.clsID != this.clsID || that.chdID != this.chdID) {
-      return false;
-    }
-    if (Double.compare(this.aggregateVal, that.aggregateVal) != 0) {
-      return false;
-    }
+//    if (that.clsID != this.clsID || that.child.getClassID() != child.getClassID()) {
+//      return false;
+//    }
+//    if (Double.compare(this.aggregateVal, that.aggregateVal) != 0) {
+//      return false;
+//    }
     return true;
   }
 
@@ -145,7 +157,8 @@ public class Class implements Comparable<Class> {
     sb.append("class ID : ").append(clsID).append(' ');
     sb.append("Upper Bound : ").append(ub).append(' ');
     sb.append("Lower Bound : ").append(lb).append(' ');
-    sb.append("Lattice Child : ").append(chdID).append(' ');
+    int chdId = child == null ? -1 : child.getClassID();
+    sb.append("Lattice Child : ").append(chdId).append(' ');
     sb.append("Agg : ").append(aggregateVal);
     return sb.toString();
   }

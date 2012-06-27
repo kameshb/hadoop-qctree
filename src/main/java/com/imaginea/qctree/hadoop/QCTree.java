@@ -39,14 +39,62 @@ public class QCTree implements Writable {
 
   public static QCTree build(final QCCube qCube) {
     QCTree tree = null;
+    Cell last = null;
+
     for (Class clazz : qCube.getClasses()) {
       if (tree == null) {
         tree = new QCTree(clazz);
-      } else {
+        last = clazz.getUpperBound();
+      } else if (!last.equals(clazz.getUpperBound())) {
         tree.add(clazz);
+        last = clazz.getUpperBound();
+      } else {
+        tree.addDrillDownLink(clazz);
       }
     }
     return tree;
+  }
+
+  /*
+   * To add the drill down links, find the two nodes in the tree and add a link
+   * between them. FIXME crap code, Kamesh think for any better approach?
+   */
+  private void addDrillDownLink(Class clazz) {
+    Cell chdUB = clazz.getChild().getUpperBound();
+    Cell curLB = clazz.getLowerBound();
+    LOG.info("Adding drill down link between : " + chdUB + " and " + curLB);
+
+    String[] dimensions = clazz.getUpperBound().getDimensions();
+    String[] dim = new String[dimensions.length];
+    System.arraycopy(Cell.ROOT.getDimensions(), 0, dim, 0, dim.length);
+
+    int idx = 0;
+    while (!(chdUB.getDimensionAt(idx) == Cell.DIMENSION_VALUE_ANY && curLB
+        .getDimensionAt(idx) != Cell.DIMENSION_VALUE_ANY)) {
+      dim[idx] = dimensions[idx];
+      idx++;
+    }
+    dim[idx] = dimensions[idx];
+
+    QCNode from = getLongestMatchingNode(root, chdUB.getDimensions());
+    QCNode to = getLongestMatchingNode(root, dim);
+    if (from.ddLink == null) {
+      from.ddLink = new LinkedList<QCNode>();
+    }
+    from.ddLink.add(to);
+  }
+
+  private QCNode getLongestMatchingNode(QCNode node, String[] dimensions) {
+    List<String> headers = Table.getTable().getDimensionHeaders();
+    for (int idx = 0; idx < dimensions.length; ++idx) {
+      if (dimensions[idx] != Cell.DIMENSION_VALUE_ANY) {
+        node = getNode(node, headers.get(idx), dimensions[idx]);
+        if (!node.getDimValue().equals(dimensions[idx])) {
+          break;
+        }
+      }
+    }
+    return node;
   }
 
   /*
@@ -173,11 +221,46 @@ public class QCTree implements Writable {
     serialize(root, out);
   }
 
+//  private boolean areEqual(QCNode n1, QCNode n2) {
+//    if (n1.isLeaf() && n2.isLeaf() && !n1.equals(n2)) {
+//      return false;
+//    }
+//    if ((n1.isLeaf() && !n2.isLeaf()) || (n2.isLeaf() && !n1.isLeaf())) {
+//      return false;
+//    }
+//    if (!n1.equals(n2)) {
+//      return false;
+//    }
+//    Iterator<QCNode> itr1 = n1.children.iterator();
+//    Iterator<QCNode> itr2 = n2.children.iterator();
+//
+//    while (itr1.hasNext() && itr2.hasNext()) {
+//      return areEqual(itr1.next(), itr2.next());
+//    }
+//    return true;
+//  }
+
+//  @Override
+//  public boolean equals(Object obj) {
+//    if (obj == this) {
+//      return true;
+//    }
+//    if (obj == null) {
+//      return false;
+//    }
+//    if (obj.getClass() != this.getClass()) {
+//      return false;
+//    }
+//    QCTree that = (QCTree) this;
+//    return areEqual(that.root, this.root);
+//  }
+
   private class QCNode implements Writable {
     private String dimName;
     private String dimValue;
     private double aggregate;
     private List<QCNode> children;
+    private List<QCNode> ddLink;
 
     QCNode() {
       children = new LinkedList<QCNode>();
@@ -209,6 +292,23 @@ public class QCTree implements Writable {
       WritableUtils.writeString(out, dimName);
       WritableUtils.writeString(out, dimValue);
       out.writeDouble(aggregate);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (obj == this) {
+        return true;
+      }
+      if (obj == null) {
+        return false;
+      }
+      if (obj.getClass() != this.getClass()) {
+        return false;
+      }
+      QCNode that = (QCNode) obj;
+      return that.dimName.equals(this.dimName)
+          && that.dimValue.equals(this.dimName)
+          && (Double.compare(that.aggregate, this.aggregate) == 0);
     }
 
     @Override

@@ -26,17 +26,17 @@ public class QCCube {
     Cell root = new Cell(rootStr);
     Partition base = new Partition(table.getRows(), table.getColumns());
     QCCube cube = new QCCube();
-    cube.DFS(root, base, 0, -1);
+    cube.DFS(root, base, 0, null);
     return cube;
   }
 
-  private void DFS(Cell cell, Partition partition, int k, int chdID) {
+  private void DFS(Cell cell, Partition partition, int k, Class child) {
     Class clazz = new Class(partition);
     clazz.computeAggregateAndGet();
     Cell ub = clazz.upperBoundOf(cell);
     clazz.setLowerBound(new Cell(cell));
     clazz.setClassID(classId);
-    clazz.setChildID(chdID);
+    clazz.setChild(child);
     ++classId;
     classes.add(clazz);
 
@@ -56,7 +56,7 @@ public class QCCube {
         c.setDimensionAt(j, column);
         Partition part = Partition.inducedBy(c);
         if (!part.isEmpty()) {
-          DFS(c, part, j, clazz.getClassID());
+          DFS(c, part, j, clazz);
         }
       }
     }

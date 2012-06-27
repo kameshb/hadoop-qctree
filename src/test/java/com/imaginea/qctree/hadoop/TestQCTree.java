@@ -25,7 +25,7 @@ public class TestQCTree {
     Class root = new Class();
     root.setUpperBound(new Cell(new String[] { "*", "*", "*" }));
     root.setLowerBound(new Cell(new String[] { "*", "*", "*" }));
-    root.setChildID(-1);
+    root.setChild(null);
     root.setClassID(1);
     root.setAggregate(9);
     tree = new QCTree(root);
@@ -33,7 +33,7 @@ public class TestQCTree {
     Class clazz = new Class();
     clazz.setUpperBound(new Cell(new String[] { "S1", "P2", "s" }));
     clazz.setLowerBound(new Cell(new String[] { "*", "P2", "*" }));
-    clazz.setChildID(5);
+    clazz.setChild(null);
     clazz.setClassID(2);
     clazz.setAggregate(12);
     tree.add(clazz);
@@ -41,7 +41,7 @@ public class TestQCTree {
     clazz = new Class();
     clazz.setUpperBound(new Cell(new String[] { "S2", "P1", "f" }));
     clazz.setLowerBound(new Cell(new String[] { "*", "P1", "*" }));
-    clazz.setChildID(5);
+    clazz.setChild(null);
     clazz.setClassID(3);
     clazz.setAggregate(7.5);
     tree.add(clazz);
@@ -49,7 +49,7 @@ public class TestQCTree {
     clazz = new Class();
     clazz.setUpperBound(new Cell(new String[] { "S1", "*", "s" }));
     clazz.setLowerBound(new Cell(new String[] { "*", "*", "s" }));
-    clazz.setChildID(5);
+    clazz.setChild(null);
     clazz.setClassID(4);
     clazz.setAggregate(7.5);
     tree.add(clazz);
@@ -57,7 +57,7 @@ public class TestQCTree {
     clazz = new Class();
     clazz.setUpperBound(new Cell(new String[] { "S1", "P1", "s" }));
     clazz.setLowerBound(new Cell(new String[] { "*", "P1", "s" }));
-    clazz.setChildID(5);
+    clazz.setChild(null);
     clazz.setClassID(5);
     clazz.setAggregate(6);
     tree.add(clazz);
@@ -65,7 +65,7 @@ public class TestQCTree {
     clazz = new Class();
     clazz.setUpperBound(new Cell(new String[] { "*", "P1", "*" }));
     clazz.setLowerBound(new Cell(new String[] { "*", "P1", "*" }));
-    clazz.setChildID(5);
+    clazz.setChild(null);
     clazz.setClassID(6);
     clazz.setAggregate(7.5);
     tree.add(clazz);
