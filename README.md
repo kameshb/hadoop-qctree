@@ -13,7 +13,7 @@ hadoop-qctree provides QC-tree construction using Hadoop.
 
 <h3>How to Build Binary</h3>
 <p>To build the binary of the hadoop-qctree, run the following command</p>
-<b>mvn clean package</b>
+<i><b>mvn clean package</b></i>
 <p>The above command produces a tar ball in the target directory.</p>
 
 <h3>How to Run</h3>
@@ -21,6 +21,6 @@ hadoop-qctree provides QC-tree construction using Hadoop.
 <p>Untar the tar ball and move to hadoop-qctree-* directory.</p>
 
 <p>To build a qc-tree for the given input, execute the following command</p>
-<b>bin/qctree.sh input output</b>
+<i><b>bin/qctree.sh input output</b></i>
 
 
