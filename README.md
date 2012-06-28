@@ -1,4 +1,4 @@
-hadoop-qctree
+<h1>hadoop-qctree</h1>
 
 QC-tree(short for quotient cube tree) is a compact data structure for representing and implementing quotient cube. 
 
@@ -12,15 +12,15 @@ QC-tree
 hadoop-qctree provides QC-tree construction using Hadoop.
 
 <h3>How to Build Binary</h3>
-To build the binary of the hadoop-qctree, run the following command
+<p>To build the binary of the hadoop-qctree, run the following command</p>
 <b>mvn clean package</b>
-The above command produces a tar ball in the target directory.
+<p>The above command produces a tar ball in the target directory.</p>
 
 <h3>How to Run</h3>
 <h4>Local Mode</h4>
-Untar the tar ball and move to hadoop-qctree-* directory.
+<p>Untar the tar ball and move to hadoop-qctree-* directory.</p>
 
-To build a qc-tree for the given input, execute the following command
+<p>To build a qc-tree for the given input, execute the following command</p>
 <b>bin/qctree.sh input output</b>
 
 
