@@ -1,7 +1,5 @@
 package com.imaginea.qctree.hadoop;
 
-import java.net.URI;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.NullWritable;
@@ -27,13 +25,7 @@ public class QCDriver implements Tool {
 
   @Override
   public int run(String[] args) throws Exception {
-    if (args.length != 2) {
-      System.err.println("USAGE: QCDriver <input-path> <output-path>");
-      System.exit(-1);
-    }
     Job qcJob = Job.getInstance(getConf(), "Quotient Cube");
-    qcJob.addCacheFile(new URI("/cache/files/table.json"));
-    qcJob.addFileToClassPath(new Path("/cache/jars/gson-2.2.1.jar"));
     qcJob.setJarByClass(QCDriver.class);
     qcJob.setMapperClass(QCMapper.class);
     qcJob.setNumReduceTasks(0);
