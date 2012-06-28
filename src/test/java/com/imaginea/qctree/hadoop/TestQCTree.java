@@ -96,18 +96,18 @@ public class TestQCTree {
     Assert.assertEquals(tree.toString(), sb.toString());
   }
 
-//  @Test
-//  public void testShouldPerformSerDeCorectly() throws IOException {
-//    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//    DataOutput out = new DataOutputStream(baos);
-//    tree.write(out);
-//
-//    ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-//    DataInput in = new DataInputStream(bais);
-//    QCTree tree1 = new QCTree();
-//    tree1.readFields(in);
-//
-//    Assert.assertEquals(tree, tree1);
-//  }
+  @Test
+  public void testShouldPerformSerDeCorectly() throws IOException {
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    DataOutput out = new DataOutputStream(baos);
+    tree.write(out);
+
+    ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+    DataInput in = new DataInputStream(bais);
+    QCTree tree1 = new QCTree();
+    tree1.readFields(in);
+
+    Assert.assertEquals(tree, tree1);
+  }
 
 }

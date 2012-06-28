@@ -5,6 +5,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Stack;
 
 import org.apache.commons.logging.Log;
@@ -221,39 +222,50 @@ public class QCTree implements Writable {
     serialize(root, out);
   }
 
-//  private boolean areEqual(QCNode n1, QCNode n2) {
-//    if (n1.isLeaf() && n2.isLeaf() && !n1.equals(n2)) {
-//      return false;
-//    }
-//    if ((n1.isLeaf() && !n2.isLeaf()) || (n2.isLeaf() && !n1.isLeaf())) {
-//      return false;
-//    }
-//    if (!n1.equals(n2)) {
-//      return false;
-//    }
-//    Iterator<QCNode> itr1 = n1.children.iterator();
-//    Iterator<QCNode> itr2 = n2.children.iterator();
-//
-//    while (itr1.hasNext() && itr2.hasNext()) {
-//      return areEqual(itr1.next(), itr2.next());
-//    }
-//    return true;
-//  }
+  /*
+   * Comparing the trees using level order traversing
+   */
+  private boolean areEqual(QCNode n1, QCNode n2) {
+    Queue<QCNode> queue1 = new LinkedList<QCTree.QCNode>();
+    Queue<QCNode> queue2 = new LinkedList<QCTree.QCNode>();
 
-//  @Override
-//  public boolean equals(Object obj) {
-//    if (obj == this) {
-//      return true;
-//    }
-//    if (obj == null) {
-//      return false;
-//    }
-//    if (obj.getClass() != this.getClass()) {
-//      return false;
-//    }
-//    QCTree that = (QCTree) this;
-//    return areEqual(that.root, this.root);
-//  }
+    queue1.offer(n1);
+    queue2.offer(n2);
+
+    while (!queue1.isEmpty() && !queue2.isEmpty()) {
+      QCNode node1 = queue1.poll();
+      if (!node1.isLeaf()) {
+        queue1.addAll(node1.children);
+      }
+      QCNode node2 = queue2.poll();
+      if (!node2.isLeaf()) {
+        queue2.addAll(node2.children);
+      }
+      if (!node1.equals(node2)) {
+        return false;
+      }
+    }
+    if ((queue1.isEmpty() && !queue2.isEmpty())
+        || (queue2.isEmpty() && !queue1.isEmpty())) {
+      return false;
+    }
+    return true;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (obj.getClass() != this.getClass()) {
+      return false;
+    }
+    QCTree that = (QCTree) this;
+    return areEqual(that.root, this.root);
+  }
 
   private class QCNode implements Writable {
     private String dimName;
