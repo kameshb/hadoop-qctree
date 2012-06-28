@@ -148,7 +148,6 @@
       <version>1.6.1</version>
       <scope>compile</scope>
     </dependency>
-    <!-- Adding this dependency to avoid https://issues.apache.org/jira/browse/NUTCH-964 -->
     <dependency>
 		<groupId>xerces</groupId>
 		<artifactId>xercesImpl</artifactId>
