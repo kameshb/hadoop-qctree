@@ -3,13 +3,14 @@ package com.imaginea.qctree.hadoop;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.DoubleWritable;
-import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
+
+import com.imaginea.qctree.measures.Average;
 
 public class QueryDriver implements Tool {
 
@@ -31,7 +32,7 @@ public class QueryDriver implements Tool {
     query.setJarByClass(QueryDriver.class);
     query.setMapperClass(QueryMapper.class);
     query.setMapOutputKeyClass(DoubleWritable.class);
-    query.setMapOutputValueClass(NullWritable.class);
+    query.setMapOutputValueClass(Average.class);
     query.setInputFormatClass(SequenceFileInputFormat.class);
 
     FileInputFormat.setInputPaths(query, args[0]);

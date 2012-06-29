@@ -44,15 +44,19 @@ public class QueryMapper extends
 
     if (node == null) {
       LOG.info("query failed.");
-    } else if (node.isLeaf()) {
-      KEY.set(node.getAggregateValue());
-      context.write(KEY, VAL);
-    } else {
-
     }
+    while (!node.isLeaf()) {
+      node = node.getLastChild();
+    }
+    KEY.set(node.getAggregateValue());
+    context.write(KEY, VAL);
   }
 
   private QCNode searchRoute(QCNode node, int dimIdx, String dimVal) {
+    if (node.isLeaf()) {
+      return node;
+    }
+
     // node has a child with given dim name and value.
     for (QCNode c : node.getChildren()) {
       if (c.getDimIdx() == dimIdx && c.getDimValue().equals(dimVal)) {
@@ -67,7 +71,8 @@ public class QueryMapper extends
       }
     }
 
-    if (true) {
+    QCNode lastChild = node.getLastChild();
+    if (lastChild.getDimIdx() < dimIdx) {
       searchRoute(node, dimIdx, dimVal);
     }
     return null;

@@ -3,14 +3,19 @@ package com.imaginea.qctree.hadoop;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.Set;
+import java.util.SortedSet;
 import java.util.Stack;
+import java.util.TreeSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableUtils;
 
 import com.imaginea.qctree.Cell;
@@ -27,11 +32,12 @@ public class QCTree implements Writable {
 
   private static final Log LOG = LogFactory.getLog(QCTree.class);
   private static final String NONE = "NONE";
-  private final QCNode EMPTY = new QCNode(NONE, NONE, 0.0);
+  private static final String EMPTY = "";
+  private final QCNode MARKER = new QCNode(Integer.MIN_VALUE, EMPTY, 0.0);
   private final QCNode root;
 
   public QCTree(Class clazz) {
-    root = new QCNode("ALL", Cell.DIMENSION_VALUE_ANY, clazz.getAggregate());
+    root = new QCNode(-1, Cell.DIMENSION_VALUE_ANY, clazz.getAggregate());
   }
 
   public QCTree() {
@@ -86,10 +92,9 @@ public class QCTree implements Writable {
   }
 
   private QCNode getLongestMatchingNode(QCNode node, String[] dimensions) {
-    List<String> headers = Table.getTable().getDimensionHeaders();
     for (int idx = 0; idx < dimensions.length; ++idx) {
       if (dimensions[idx] != Cell.DIMENSION_VALUE_ANY) {
-        node = getNode(node, headers.get(idx), dimensions[idx]);
+        node = getNode(node, idx, dimensions[idx]);
         if (!node.getDimValue().equals(dimensions[idx])) {
           break;
         }
@@ -102,10 +107,10 @@ public class QCTree implements Writable {
    * If the QCTree contains a QCNode with given input dimensions, it returns the
    * same QCNode, otherwise its parent will be returned.
    */
-  private QCNode getNode(QCNode temp, String dimName, String dimValue) {
+  private QCNode getNode(QCNode temp, int dimIdx, String dimValue) {
     if (temp != null && !temp.isLeaf()) {
       for (QCNode child : temp.children) {
-        if (child.dimName.equals(dimName) && child.dimValue.equals(dimValue)) {
+        if (child.dimIdx == dimIdx && child.dimValue.equals(dimValue)) {
           temp = child;
           break;
         }
@@ -116,14 +121,13 @@ public class QCTree implements Writable {
 
   public boolean add(Class clazz) {
     LOG.info("Adding tree edge : " + clazz);
-    List<String> headers = Table.getTable().getDimensionHeaders();
     String[] dimensions = clazz.getUpperBound().getDimensions();
     QCNode parent = root;
     int idx;
 
     for (idx = 0; idx < dimensions.length; ++idx) {
       if (dimensions[idx] != Cell.DIMENSION_VALUE_ANY) {
-        parent = getNode(parent, headers.get(idx), dimensions[idx]);
+        parent = getNode(parent, idx, dimensions[idx]);
         if (!parent.getDimValue().equals(dimensions[idx])) {
           break;
         }
@@ -133,9 +137,9 @@ public class QCTree implements Writable {
     QCNode temp;
     for (int i = idx; i < dimensions.length; ++i) {
       if (dimensions[i] != Cell.DIMENSION_VALUE_ANY) {
-        temp = new QCNode(headers.get(i), dimensions[i], clazz.getAggregate());
+        temp = new QCNode(i, dimensions[i], clazz.getAggregate());
         if (parent.isLeaf()) {
-          parent.children = new LinkedList<QCTree.QCNode>();
+          parent.children = new TreeSet<QCTree.QCNode>();
         }
         parent.children.add(temp);
         parent = temp;
@@ -143,6 +147,10 @@ public class QCTree implements Writable {
     }
 
     return true;
+  }
+
+  public QCNode getRoot() {
+    return root;
   }
 
   /*
@@ -164,7 +172,7 @@ public class QCTree implements Writable {
       temp.readFields(in);
       hasChildren = in.readBoolean();
 
-      if (temp.getDimValue().equals(NONE)) {
+      if (temp.equals(MARKER)) {
         stack.pop();
         continue;
       }
@@ -188,7 +196,7 @@ public class QCTree implements Writable {
     for (QCNode child : node.children) {
       printTree(child, sb);
     }
-    sb.append(EMPTY.toString()).append('\n');
+    sb.append(NONE).append('\n');
   }
 
   @Override
@@ -210,7 +218,7 @@ public class QCTree implements Writable {
     for (QCNode child : node.children) {
       serialize(child, out);
     }
-    EMPTY.write(out);
+    MARKER.write(out);
     out.writeBoolean(false);
   }
 
@@ -267,19 +275,26 @@ public class QCTree implements Writable {
     return areEqual(that.root, this.root);
   }
 
-  private class QCNode implements Writable {
-    private String dimName;
+  /*
+   * While adding nodes to the trees, we add them based on their dimension
+   * index. Suppose say dimensions are a b and c (order is important). Suppose
+   * say Node n has a child with label b. When another child with label a comes,
+   * child a precedes child b, in the child list. This has been designed to
+   * achieve best query latency times.
+   */
+  class QCNode implements WritableComparable<QCNode> {
+    private int dimIdx;
     private String dimValue;
     private double aggregate;
-    private List<QCNode> children;
+    private SortedSet<QCNode> children;
     private List<QCNode> ddLink;
 
     QCNode() {
-      children = new LinkedList<QCNode>();
+      children = new TreeSet<QCNode>();
     }
 
-    QCNode(String dimName, String dimValue, double aggregate) {
-      this.dimName = dimName;
+    QCNode(int dimIdx, String dimValue, double aggregate) {
+      this.dimIdx = dimIdx;
       this.dimValue = dimValue;
       this.aggregate = aggregate;
     }
@@ -288,20 +303,32 @@ public class QCTree implements Writable {
       return this.dimValue;
     }
 
+    int getDimIdx() {
+      return this.getDimIdx();
+    }
+
+    double getAggregateValue() {
+      return this.aggregate;
+    }
+
     boolean isLeaf() {
       return this.children == null;
     }
 
+    boolean hasDDLinks() {
+      return this.ddLink != null;
+    }
+
     @Override
     public void readFields(DataInput in) throws IOException {
-      dimName = WritableUtils.readString(in);
+      dimIdx = WritableUtils.readVInt(in);
       dimValue = WritableUtils.readString(in);
       aggregate = in.readDouble();
     }
 
     @Override
     public void write(DataOutput out) throws IOException {
-      WritableUtils.writeString(out, dimName);
+      WritableUtils.writeVInt(out, dimIdx);
       WritableUtils.writeString(out, dimValue);
       out.writeDouble(aggregate);
     }
@@ -318,18 +345,49 @@ public class QCTree implements Writable {
         return false;
       }
       QCNode that = (QCNode) obj;
-      return that.dimName.equals(this.dimName)
-          && that.dimValue.equals(this.dimName)
+      return that.dimIdx == this.dimIdx && that.dimValue.equals(this.dimValue)
           && (Double.compare(that.aggregate, this.aggregate) == 0);
+    }
+
+    // If dimension indices are same, do stable sort
+    @Override
+    public int compareTo(QCNode o) {
+      int diff = dimIdx - o.dimIdx;
+      if (diff == 0) {
+        diff = dimValue.compareTo(o.dimValue);
+      }
+      return diff == 0 ? Double.compare(aggregate, o.aggregate) : diff;
+    }
+
+    @SuppressWarnings("unchecked")
+    public Set<QCNode> getChildren() {
+      return isLeaf() ? Collections.EMPTY_SET : children;
+    }
+    
+    public QCNode getLastChild() {
+      return children.last();
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<QCNode> getDDLinks() {
+      return hasDDLinks() ? ddLink : Collections.EMPTY_LIST;
     }
 
     @Override
     public String toString() {
       StringBuilder sb = new StringBuilder();
-      sb.append(dimName).append(" = ").append(dimValue);
+      String header;
+      if(dimIdx == -1) {
+        header = "ALL";
+      } else {
+        header = Table.getTable().getDimensionHeaderAt(dimIdx);
+      }
+      sb.append(header);
+      sb.append(" = ").append(dimValue);
       sb.append(" : ").append(aggregate);
       return sb.toString();
     }
+
   }
 
 }

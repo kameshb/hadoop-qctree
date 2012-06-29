@@ -16,8 +16,9 @@ import com.google.gson.annotations.Expose;
 
 /**
  * Table represents either a plain text file or a database table. It has table
- * headers and rows.
- * 
+ * headers and rows. It represents an in-memory representation of a part of an
+ * external table. Caution should be taken while building qc-tree on memory
+ * constraints.
  */
 public class Table {
 
@@ -51,6 +52,10 @@ public class Table {
 
   public List<String> getDimensionHeaders() {
     return Collections.unmodifiableList(dimensions);
+  }
+
+  public String getDimensionHeaderAt(int idx) {
+    return dimensions.get(idx);
   }
 
   public List<String> getMeasureHeaders() {
