@@ -4,21 +4,20 @@ import java.io.IOException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.mapreduce.Mapper;
 
 import com.imaginea.qctree.Cell;
 import com.imaginea.qctree.hadoop.QCTree.QCNode;
+import com.imaginea.qctree.measures.Aggregates;
 
 public class QueryMapper extends
-    Mapper<NullWritable, QCTree, DoubleWritable, NullWritable> {
+    Mapper<NullWritable, QCTree, NullWritable, Aggregates> {
 
   private static final Log LOG = LogFactory.getLog(QueryMapper.class);
   private Cell query;
 
-  private DoubleWritable KEY = new DoubleWritable();
-  private NullWritable VAL = NullWritable.get();
+  private NullWritable KEY = NullWritable.get();
 
   @Override
   protected void setup(Context context) throws IOException,
@@ -48,8 +47,7 @@ public class QueryMapper extends
     while (!node.isLeaf()) {
       node = node.getLastChild();
     }
-    KEY.set(node.getAggregateValue());
-    context.write(KEY, VAL);
+    context.write(KEY, node.getAggregates());
   }
 
   private QCNode searchRoute(QCNode node, int dimIdx, String dimVal) {

@@ -7,5 +7,7 @@ import org.apache.hadoop.io.Writable;
 import com.imaginea.qctree.Row;
 
 public interface Aggregable extends Writable {
-  public Double aggregate(List<Row> rows);
+  public void aggregate(List<Row> rows);
+
+  public double getAggregateValue();
 }

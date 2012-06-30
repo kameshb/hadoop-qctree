@@ -32,7 +32,7 @@ public class QCCube {
 
   private void DFS(Cell cell, Partition partition, int k, Class child) {
     Class clazz = new Class(partition);
-    clazz.computeAggregateAndGet();
+    clazz.computeAggregates();
     Cell ub = clazz.upperBoundOf(cell);
     clazz.setLowerBound(new Cell(cell));
     clazz.setClassID(classId);

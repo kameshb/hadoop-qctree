@@ -2,10 +2,15 @@ package com.imaginea.qctree;
 
 import static com.imaginea.qctree.Cell.DIMENSION_VALUE_ANY;
 
+import java.util.List;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.imaginea.qctree.measures.Aggregable;
+import com.imaginea.qctree.measures.Aggregates;
 
 public class TestPartition {
 
@@ -61,7 +66,9 @@ public class TestPartition {
         DIMENSION_VALUE_ANY });
     Partition partition = Partition.inducedBy(cell);
     Class temp = new Class(partition);
-    double avg = temp.computeAggregateAndGet();
-    Assert.assertEquals(9d, avg, 0.0d);
+    temp.computeAggregates();
+    Aggregates aggregates = temp.getAggregates();
+    List<Aggregable> aggList = aggregates.get();
+    Assert.assertEquals(9d, aggList.get(0).getAggregateValue(), 0.0d);
   }
 }

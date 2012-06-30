@@ -5,17 +5,23 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.io.WritableUtils;
 
 import com.imaginea.qctree.Row;
 
 public class Average implements Aggregable {
 
+  private static final Log LOG = LogFactory.getLog(Average.class);
+
   private int noOfrows;
-  private double sum; 
+  private double sum;
 
   @Override
-  public Double aggregate(List<Row> rows) {
+  public void aggregate(List<Row> rows) {
+    LOG.info("Computing Average Aggregate");
+
     double sum = 0;
     int noOfEntries = 0;
     for (Row row : rows) {
@@ -26,7 +32,6 @@ public class Average implements Aggregable {
     }
     this.sum = sum;
     this.noOfrows = noOfEntries;
-    return sum / noOfEntries;
   }
 
   @Override
@@ -39,6 +44,11 @@ public class Average implements Aggregable {
   public void write(DataOutput out) throws IOException {
     WritableUtils.writeVInt(out, noOfrows);
     out.writeDouble(sum);
+  }
+
+  @Override
+  public double getAggregateValue() {
+    return sum / noOfrows;
   }
 
 }

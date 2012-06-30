@@ -22,6 +22,7 @@ import com.imaginea.qctree.Cell;
 import com.imaginea.qctree.Class;
 import com.imaginea.qctree.QCCube;
 import com.imaginea.qctree.Table;
+import com.imaginea.qctree.measures.Aggregates;
 
 /**
  * A QC-tree is a compact representation of the QC-cube. It is a prefix tree,
@@ -33,11 +34,11 @@ public class QCTree implements Writable {
   private static final Log LOG = LogFactory.getLog(QCTree.class);
   private static final String NONE = "NONE";
   private static final String EMPTY = "";
-  private final QCNode MARKER = new QCNode(Integer.MIN_VALUE, EMPTY, 0.0);
+  private final QCNode MARKER = new QCNode(Integer.MIN_VALUE, EMPTY);
   private final QCNode root;
 
   public QCTree(Class clazz) {
-    root = new QCNode(-1, Cell.DIMENSION_VALUE_ANY, clazz.getAggregate());
+    root = new QCNode(-1, Cell.DIMENSION_VALUE_ANY);
   }
 
   public QCTree() {
@@ -137,7 +138,7 @@ public class QCTree implements Writable {
     QCNode temp;
     for (int i = idx; i < dimensions.length; ++i) {
       if (dimensions[i] != Cell.DIMENSION_VALUE_ANY) {
-        temp = new QCNode(i, dimensions[i], clazz.getAggregate());
+        temp = new QCNode(i, dimensions[i]);
         if (parent.isLeaf()) {
           parent.children = new TreeSet<QCTree.QCNode>();
         }
@@ -145,7 +146,8 @@ public class QCTree implements Writable {
         parent = temp;
       }
     }
-
+    // Leaf Node
+    parent.setAggregates(clazz.getAggregates());
     return true;
   }
 
@@ -285,18 +287,27 @@ public class QCTree implements Writable {
   class QCNode implements WritableComparable<QCNode> {
     private int dimIdx;
     private String dimValue;
-    private double aggregate;
+    private Aggregates aggregates;
+
     private SortedSet<QCNode> children;
     private List<QCNode> ddLink;
 
     QCNode() {
       children = new TreeSet<QCNode>();
+      aggregates = new Aggregates();
     }
 
-    QCNode(int dimIdx, String dimValue, double aggregate) {
+    QCNode(int dimIdx, String dimValue) {
       this.dimIdx = dimIdx;
       this.dimValue = dimValue;
-      this.aggregate = aggregate;
+    }
+
+    public void setAggregates(Aggregates aggregates) {
+      this.aggregates = aggregates;
+    }
+    
+    public Aggregates getAggregates() {
+      return this.aggregates;
     }
 
     String getDimValue() {
@@ -307,12 +318,8 @@ public class QCTree implements Writable {
       return this.getDimIdx();
     }
 
-    double getAggregateValue() {
-      return this.aggregate;
-    }
-
     boolean isLeaf() {
-      return this.children == null;
+      return this.children == null || this.children.size() == 0;
     }
 
     boolean hasDDLinks() {
@@ -323,14 +330,24 @@ public class QCTree implements Writable {
     public void readFields(DataInput in) throws IOException {
       dimIdx = WritableUtils.readVInt(in);
       dimValue = WritableUtils.readString(in);
-      aggregate = in.readDouble();
+      boolean hasAggregates = in.readBoolean();
+
+      if (hasAggregates) {
+        aggregates.readFields(in);
+      }
     }
 
     @Override
     public void write(DataOutput out) throws IOException {
       WritableUtils.writeVInt(out, dimIdx);
       WritableUtils.writeString(out, dimValue);
-      out.writeDouble(aggregate);
+
+      if (dimIdx != Integer.MIN_VALUE && isLeaf()) {
+        out.writeBoolean(true);
+        aggregates.write(out);
+      } else {
+        out.writeBoolean(false);
+      }
     }
 
     @Override
@@ -345,25 +362,21 @@ public class QCTree implements Writable {
         return false;
       }
       QCNode that = (QCNode) obj;
-      return that.dimIdx == this.dimIdx && that.dimValue.equals(this.dimValue)
-          && (Double.compare(that.aggregate, this.aggregate) == 0);
+      return that.dimIdx == this.dimIdx && that.dimValue.equals(this.dimValue);
     }
 
     // If dimension indices are same, do stable sort
     @Override
     public int compareTo(QCNode o) {
       int diff = dimIdx - o.dimIdx;
-      if (diff == 0) {
-        diff = dimValue.compareTo(o.dimValue);
-      }
-      return diff == 0 ? Double.compare(aggregate, o.aggregate) : diff;
+      return diff == 0 ? dimValue.compareTo(o.dimValue) : diff;
     }
 
     @SuppressWarnings("unchecked")
     public Set<QCNode> getChildren() {
       return isLeaf() ? Collections.EMPTY_SET : children;
     }
-    
+
     public QCNode getLastChild() {
       return children.last();
     }
@@ -377,17 +390,21 @@ public class QCTree implements Writable {
     public String toString() {
       StringBuilder sb = new StringBuilder();
       String header;
-      if(dimIdx == -1) {
+      if (dimIdx == -1) {
         header = "ALL";
       } else {
         header = Table.getTable().getDimensionHeaderAt(dimIdx);
       }
       sb.append(header);
       sb.append(" = ").append(dimValue);
-      sb.append(" : ").append(aggregate);
+      if (isLeaf()) {
+        sb.append(" Aggregates: ");
+        String aggName = aggregates.get().get(0).getClass().getSimpleName();
+        double aggVal = aggregates.get().get(0).getAggregateValue();
+        sb.append(aggName).append(':').append(aggVal);
+      }
       return sb.toString();
     }
-
   }
 
 }

@@ -4,18 +4,16 @@ import static com.imaginea.qctree.Cell.DIMENSION_VALUE_ANY;
 
 import java.util.Set;
 
-import com.imaginea.qctree.measures.Aggregable;
-import com.imaginea.qctree.measures.Average;
+import com.imaginea.qctree.measures.Aggregates;
 
 public class Class implements Comparable<Class> {
   private int clsID;
   private Class child;
   private Cell ub;
   private Cell lb;
-  private Double aggregateVal;
+  private Aggregates aggregates = new Aggregates();
 
   private Partition partition;
-  private Aggregable measure = new Average();
 
   public Class(Partition partition) {
     this.partition = partition;
@@ -35,7 +33,7 @@ public class Class implements Comparable<Class> {
   public void setChild(Class child) {
     this.child = child;
   }
-  
+
   public Class getChild() {
     return this.child;
   }
@@ -43,7 +41,7 @@ public class Class implements Comparable<Class> {
   public void setLowerBound(Cell lb) {
     this.lb = lb;
   }
-  
+
   public Cell getLowerBound() {
     return this.lb;
   }
@@ -56,20 +54,12 @@ public class Class implements Comparable<Class> {
     return this.ub;
   }
 
-  public void setAggregate(double aggr) {
-    this.aggregateVal = aggr;
+  public Aggregates getAggregates() {
+    return this.aggregates;
   }
 
-  public double getAggregate() {
-    return this.aggregateVal;
-  }
-
-  public double computeAggregateAndGet() {
-    if (aggregateVal != null) {
-      return aggregateVal;
-    }
-    aggregateVal = measure.aggregate(partition.getBaseCells());
-    return aggregateVal;
+  public void computeAggregates() {
+    aggregates.compute(partition.getBaseCells());
   }
 
   private String getDimensionValueAt(int colIndex) {
@@ -114,17 +104,14 @@ public class Class implements Comparable<Class> {
   public int hashCode() {
     final int prime = 31;
     int hashcode = 1;
-//    hashcode = hashcode * prime + clsID;
-//    hashcode = hashcode * prime + child.getClassID();
-//    hashcode = hashcode * prime + aggregateVal.hashCode();
     hashcode = hashcode * prime + lb.hashCode();
     hashcode = hashcode * prime + ub.hashCode();
     return hashcode;
   }
 
   /*
-   * None of the temporary Classes will have the same upper bound and 
-   * lower bound. So it is safe to check those two properties.
+   * None of the temporary Classes will have the same upper bound and lower
+   * bound. So it is safe to check those two properties.
    */
   @Override
   public boolean equals(Object obj) {
@@ -142,12 +129,6 @@ public class Class implements Comparable<Class> {
     if (!that.lb.equals(this.lb) || !that.ub.equals(this.ub)) {
       return false;
     }
-//    if (that.clsID != this.clsID || that.child.getClassID() != child.getClassID()) {
-//      return false;
-//    }
-//    if (Double.compare(this.aggregateVal, that.aggregateVal) != 0) {
-//      return false;
-//    }
     return true;
   }
 
@@ -159,7 +140,6 @@ public class Class implements Comparable<Class> {
     sb.append("Lower Bound : ").append(lb).append(' ');
     int chdId = child == null ? -1 : child.getClassID();
     sb.append("Lattice Child : ").append(chdId).append(' ');
-    sb.append("Agg : ").append(aggregateVal);
     return sb.toString();
   }
 
