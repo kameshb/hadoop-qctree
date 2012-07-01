@@ -315,7 +315,7 @@ public class QCTree implements Writable {
     }
 
     int getDimIdx() {
-      return this.getDimIdx();
+      return this.dimIdx;
     }
 
     boolean isLeaf() {
