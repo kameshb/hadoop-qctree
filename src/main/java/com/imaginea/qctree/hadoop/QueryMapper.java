@@ -25,7 +25,7 @@ public class QueryMapper extends
     String query = context.getConfiguration().get("query");
     LOG.info("processing query : " + query);
     // FIXME hard coded, need to come up with better approach?
-    String[] split = query.split(" ");
+    String[] split = query.split(",");
     this.query = new Cell(split);
   };
 
@@ -35,19 +35,22 @@ public class QueryMapper extends
     QCNode node = tree.getRoot();
 
     for (int idx = 0; idx < query.getDimensions().length; ++idx) {
-      node = searchRoute(node, idx, query.getDimensionAt(idx));
-      if (node == null) {
-        break;
+      if (!query.getDimensionAt(idx).equals(Cell.DIMENSION_VALUE_ANY)) {
+        node = searchRoute(node, idx, query.getDimensionAt(idx));
+        if (node == null) {
+          break;
+        }
       }
     }
 
     if (node == null) {
       LOG.info("query failed.");
+    } else {
+      while (!node.isLeaf()) {
+        node = node.getLastChild();
+      }
+      context.write(KEY, node.getAggregates());
     }
-    while (!node.isLeaf()) {
-      node = node.getLastChild();
-    }
-    context.write(KEY, node.getAggregates());
   }
 
   private QCNode searchRoute(QCNode node, int dimIdx, String dimVal) {
@@ -71,9 +74,9 @@ public class QueryMapper extends
 
     QCNode lastChild = node.getLastChild();
     if (lastChild.getDimIdx() < dimIdx) {
-      searchRoute(node, dimIdx, dimVal);
+      return searchRoute(lastChild, dimIdx, dimVal);
+    } else {
+      return null;
     }
-    return null;
   }
-
 }
