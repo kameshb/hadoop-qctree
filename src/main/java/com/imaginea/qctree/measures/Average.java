@@ -51,4 +51,11 @@ public class Average implements Aggregable {
     return sum / noOfrows;
   }
 
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append(sum / noOfrows);
+    return sb.toString();
+  }
+
 }
