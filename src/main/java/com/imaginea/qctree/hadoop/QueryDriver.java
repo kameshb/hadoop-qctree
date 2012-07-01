@@ -35,8 +35,11 @@ public class QueryDriver implements Tool {
     query.setMapOutputValueClass(Aggregates.class);
     query.setInputFormatClass(SequenceFileInputFormat.class);
 
-    FileInputFormat.setInputPaths(query, args[0]);
-    FileOutputFormat.setOutputPath(query, new Path(args[1]));
+    Path input = new Path(args[0]);
+    Path output = new Path(args[1]);
+
+    FileInputFormat.setInputPaths(query, input);
+    FileOutputFormat.setOutputPath(query, output);
 
     return query.waitForCompletion(true) ? 0 : -1;
   }
@@ -44,9 +47,7 @@ public class QueryDriver implements Tool {
   public static void main(String[] args) throws Exception {
     Configuration conf = new Configuration();
     conf.set("query", args[2]);
-    QueryDriver queryDriver = new QueryDriver();
-    queryDriver.setConf(conf);
-    ToolRunner.run(new Configuration(), queryDriver, args);
+    ToolRunner.run(conf, new QueryDriver(), args);
   }
 
 }
