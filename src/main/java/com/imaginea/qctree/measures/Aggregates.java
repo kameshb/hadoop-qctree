@@ -47,4 +47,14 @@ public class Aggregates implements Writable {
     }
   }
 
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    for (Aggregable aggr : aggregates) {
+      sb.append(aggr.getClass().getSimpleName());
+      sb.append('=').append(aggr.toString()).append('\n');
+    }
+    return sb.toString();
+  }
+
 }
