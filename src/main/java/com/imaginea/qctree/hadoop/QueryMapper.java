@@ -44,7 +44,7 @@ public class QueryMapper extends
     }
 
     if (node == null) {
-      LOG.info("query failed.");
+      LOG.info("No results.");
     } else {
       while (!node.isLeaf()) {
         node = node.getLastChild();

@@ -30,9 +30,15 @@ public class QueryDriver implements Tool {
   public int run(String[] args) throws Exception {
     Job query = Job.getInstance(getConf(), "Query");
     query.setJarByClass(QueryDriver.class);
+    
     query.setMapperClass(QueryMapper.class);
     query.setMapOutputKeyClass(NullWritable.class);
     query.setMapOutputValueClass(Aggregates.class);
+    
+    query.setReducerClass(QueryReducer.class);
+    query.setOutputKeyClass(NullWritable.class);
+    query.setOutputValueClass(Aggregates.class);
+    
     query.setInputFormatClass(SequenceFileInputFormat.class);
 
     Path input = new Path(args[0]);

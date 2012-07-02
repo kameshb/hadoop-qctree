@@ -1,5 +1,12 @@
 package com.imaginea.qctree;
 
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+
+import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.io.WritableUtils;
+
 /**
  * A Cell is a representation of a set dimension values. Example: (a1, b1, c1)
  * is a cell. Here a1,b1 and c1 are dimension values corresponding to dimensions
@@ -8,7 +15,7 @@ package com.imaginea.qctree;
  * to dimension a.
  */
 
-public class Cell implements Comparable<Cell> {
+public class Cell implements WritableComparable<Cell> {
 
   public static final String DIMENSION_VALUE_ANY = "*";
   public static final Cell ROOT;
@@ -21,7 +28,12 @@ public class Cell implements Comparable<Cell> {
     ROOT = new Cell(rootStr);
   }
 
-  protected final String[] dimensions;
+  protected String[] dimensions;
+  
+  public Cell() {
+    dimensions = new String[ROOT.dimensions.length];
+    System.arraycopy(ROOT.dimensions, 0, dimensions, 0, dimensions.length);
+  }
 
   public Cell(String[] dims) {
     dimensions = new String[dims.length];
@@ -134,6 +146,16 @@ public class Cell implements Comparable<Cell> {
       }
     }
     return diff;
+  }
+
+  @Override
+  public void readFields(DataInput in) throws IOException {
+    dimensions = WritableUtils.readStringArray(in);
+  }
+
+  @Override
+  public void write(DataOutput out) throws IOException {
+    WritableUtils.writeStringArray(out, dimensions);
   }
 
 }

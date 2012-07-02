@@ -47,15 +47,20 @@ public class Average implements Aggregable {
   }
 
   @Override
+  public void accumalate(Aggregable other) {
+    Average otherAvg = (Average) other;
+    this.sum += otherAvg.sum;
+    this.noOfrows += otherAvg.noOfrows;
+  }
+
+  @Override
   public double getAggregateValue() {
     return sum / noOfrows;
   }
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append(sum / noOfrows);
-    return sb.toString();
+    return String.valueOf(sum / noOfrows);
   }
 
 }

@@ -2,14 +2,11 @@ package com.imaginea.qctree;
 
 import static com.imaginea.qctree.Cell.DIMENSION_VALUE_ANY;
 
-import java.util.List;
-
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.imaginea.qctree.measures.Aggregable;
 import com.imaginea.qctree.measures.Aggregates;
 
 public class TestPartition {
@@ -68,7 +65,7 @@ public class TestPartition {
     Class temp = new Class(partition);
     temp.computeAggregates();
     Aggregates aggregates = temp.getAggregates();
-    List<Aggregable> aggList = aggregates.get();
-    Assert.assertEquals(9d, aggList.get(0).getAggregateValue(), 0.0d);
+    double v = aggregates.get().values().iterator().next().getAggregateValue();
+    Assert.assertEquals(9d, v, 0.0d);
   }
 }

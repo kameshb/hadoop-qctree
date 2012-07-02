@@ -67,7 +67,7 @@ public class QCTree implements Writable {
    * To add the drill down links, find the two nodes in the tree and add a link
    * between them. FIXME crap code, Kamesh think for any better approach?
    */
-  private void addDrillDownLink(Class clazz) {
+  public void addDrillDownLink(Class clazz) {
     Cell chdUB = clazz.getChild().getUpperBound();
     Cell curLB = clazz.getLowerBound();
     LOG.info("Adding drill down link between : " + chdUB + " and " + curLB);
@@ -94,7 +94,7 @@ public class QCTree implements Writable {
 
   private QCNode getLongestMatchingNode(QCNode node, String[] dimensions) {
     for (int idx = 0; idx < dimensions.length; ++idx) {
-      if (dimensions[idx] != Cell.DIMENSION_VALUE_ANY) {
+      if (!dimensions[idx].equals(Cell.DIMENSION_VALUE_ANY)) {
         node = getNode(node, idx, dimensions[idx]);
         if (!node.getDimValue().equals(dimensions[idx])) {
           break;
@@ -127,7 +127,7 @@ public class QCTree implements Writable {
     int idx;
 
     for (idx = 0; idx < dimensions.length; ++idx) {
-      if (dimensions[idx] != Cell.DIMENSION_VALUE_ANY) {
+      if (!dimensions[idx].equals(Cell.DIMENSION_VALUE_ANY)) {
         parent = getNode(parent, idx, dimensions[idx]);
         if (!parent.getDimValue().equals(dimensions[idx])) {
           break;
@@ -137,12 +137,13 @@ public class QCTree implements Writable {
 
     QCNode temp;
     for (int i = idx; i < dimensions.length; ++i) {
-      if (dimensions[i] != Cell.DIMENSION_VALUE_ANY) {
+      if (!dimensions[i].equals(Cell.DIMENSION_VALUE_ANY)) {
         temp = new QCNode(i, dimensions[i]);
         if (parent.isLeaf()) {
           parent.children = new TreeSet<QCTree.QCNode>();
         }
         parent.children.add(temp);
+        temp.parent = parent;
         parent = temp;
       }
     }
@@ -178,12 +179,14 @@ public class QCTree implements Writable {
         stack.pop();
         continue;
       }
-      stack.peek().children.add(temp);
+      QCNode node = stack.peek();
+      node.children.add(temp);
+      temp.parent = node;
       if (hasChildren) {
         stack.push(temp);
       }
     }
-
+    deserializeLinks(in);
   }
 
   public void printTree(QCNode node, StringBuilder sb) {
@@ -224,16 +227,65 @@ public class QCTree implements Writable {
     out.writeBoolean(false);
   }
 
+  public void deserializeLinks(DataInput in) throws IOException {
+    Cell from, to;
+    int linkCount;
+    QCNode nodeFrom, nodeTo;
+
+    while (in.readBoolean()) {
+      from = new Cell();
+      from.readFields(in);
+      nodeFrom = getLongestMatchingNode(root, from.getDimensions());
+      if (!nodeFrom.hasDDLinks()) {
+        nodeFrom.ddLink = new LinkedList<QCNode>();
+      }
+
+      linkCount = WritableUtils.readVInt(in);
+
+      for (int i = 1; i <= linkCount; ++i) {
+        to = new Cell();
+        to.readFields(in);
+        nodeTo = getLongestMatchingNode(root, to.getDimensions());
+        nodeFrom.ddLink.add(nodeTo);
+      }
+    }
+  }
+
+  public void serializeLinks(DataOutput out) throws IOException {
+    Queue<QCNode> queue = new LinkedList<QCNode>();
+    queue.offer(root);
+    while (!queue.isEmpty()) {
+      QCNode qcNode = queue.poll();
+      if (qcNode.hasDDLinks()) {
+        out.writeBoolean(true);
+        Cell from = getAbsolutePath(qcNode);
+        from.write(out);
+        WritableUtils.writeVInt(out, qcNode.ddLink.size());
+        Cell to;
+        for (QCNode link : qcNode.ddLink) {
+          to = getAbsolutePath(link);
+          to.write(out);
+        }
+      }
+      if (!qcNode.isLeaf()) {
+        queue.addAll(qcNode.children);
+      }
+    }
+    out.writeBoolean(false);
+  }
+
   /*
-   * Serializing the QC-tree
+   * Serializing the QC-tree. Serializing rooted tree and links separately.
+   * FIXME think for any approach of serializing both at the same time.
    */
   @Override
   public void write(DataOutput out) throws IOException {
     serialize(root, out);
+    serializeLinks(out);
   }
 
   /*
-   * Comparing the trees using level order traversing
+   * Comparing the graphs using level order traversing
    */
   private boolean areEqual(QCNode n1, QCNode n2) {
     Queue<QCNode> queue1 = new LinkedList<QCTree.QCNode>();
@@ -247,19 +299,24 @@ public class QCTree implements Writable {
       if (!node1.isLeaf()) {
         queue1.addAll(node1.children);
       }
+      if(node1.hasDDLinks()) {
+        queue1.addAll(node1.ddLink);
+      }
+      
       QCNode node2 = queue2.poll();
       if (!node2.isLeaf()) {
         queue2.addAll(node2.children);
       }
+      if(node2.hasDDLinks()) {
+        queue2.addAll(node2.ddLink);
+      }
+      
       if (!node1.equals(node2)) {
         return false;
       }
     }
-    if ((queue1.isEmpty() && !queue2.isEmpty())
-        || (queue2.isEmpty() && !queue1.isEmpty())) {
-      return false;
-    }
-    return true;
+    //If either of the queue is non-empty, return false.
+    return queue1.isEmpty() & queue2.isEmpty();
   }
 
   @Override
@@ -278,6 +335,19 @@ public class QCTree implements Writable {
   }
 
   /*
+   * Returns the absolute path from the current node till parent.
+   */
+  public Cell getAbsolutePath(QCNode node) {
+    String[] dims = new String[Cell.ROOT.getDimensions().length];
+    System.arraycopy(Cell.ROOT.getDimensions(), 0, dims, 0, dims.length);
+    while (!root.equals(node)) {
+      dims[node.getDimIdx()] = node.getDimValue();
+      node = node.parent;
+    }
+    return new Cell(dims);
+  }
+
+  /*
    * While adding nodes to the trees, we add them based on their dimension
    * index. Suppose say dimensions are a b and c (order is important). Suppose
    * say Node n has a child with label b. When another child with label a comes,
@@ -289,6 +359,7 @@ public class QCTree implements Writable {
     private String dimValue;
     private Aggregates aggregates;
 
+    private QCNode parent;
     private SortedSet<QCNode> children;
     private List<QCNode> ddLink;
 
@@ -305,7 +376,7 @@ public class QCTree implements Writable {
     public void setAggregates(Aggregates aggregates) {
       this.aggregates = aggregates;
     }
-    
+
     public Aggregates getAggregates() {
       return this.aggregates;
     }
@@ -323,7 +394,7 @@ public class QCTree implements Writable {
     }
 
     boolean hasDDLinks() {
-      return this.ddLink != null;
+      return this.ddLink != null && this.ddLink.size() != 0;
     }
 
     @Override

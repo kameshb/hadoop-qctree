@@ -8,12 +8,20 @@ import org.apache.hadoop.mapreduce.Reducer;
 import com.imaginea.qctree.measures.Aggregates;
 
 public class QueryReducer extends
-    Reducer<NullWritable, Aggregates, Aggregates, NullWritable> {
+    Reducer<NullWritable, Aggregates, NullWritable, Aggregates> {
+
+  private NullWritable KEY = NullWritable.get();
 
   @Override
-  protected void reduce(NullWritable key,
-      java.lang.Iterable<Aggregates> values, Context context)
-      throws IOException, InterruptedException {
+  protected void reduce(NullWritable key, Iterable<Aggregates> values,
+      Context context) throws IOException, InterruptedException {
+
+    Aggregates result = new Aggregates();
+
+    for (Aggregates value : values) {
+      result.accumalate(value);
+    }
+    context.write(KEY, result);
   };
 
 }

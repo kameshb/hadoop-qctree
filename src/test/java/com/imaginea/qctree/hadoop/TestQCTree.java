@@ -157,6 +157,11 @@ public class TestQCTree {
 
     tree.add(clazz10);
 
+    tree.addDrillDownLink(clazz9);
+    tree.addDrillDownLink(clazz10);
+    tree.addDrillDownLink(clazz6);
+    tree.addDrillDownLink(clazz7);
+    tree.addDrillDownLink(clazz8);
   }
 
   @Test
