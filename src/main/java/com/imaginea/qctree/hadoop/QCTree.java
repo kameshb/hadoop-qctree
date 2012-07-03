@@ -394,7 +394,6 @@ public class QCTree implements Writable {
 
     QCNode() {
       children = new TreeSet<QCNode>();
-      aggregates = new Aggregates();
     }
 
     QCNode(int dimIdx, String dimValue) {
@@ -433,6 +432,7 @@ public class QCTree implements Writable {
       boolean hasAggregates = in.readBoolean();
 
       if (hasAggregates) {
+        aggregates = new Aggregates();
         aggregates.readFields(in);
       }
     }
@@ -442,7 +442,7 @@ public class QCTree implements Writable {
       WritableUtils.writeVInt(out, dimIdx);
       WritableUtils.writeString(out, dimValue);
 
-      if (dimIdx != Integer.MIN_VALUE && isLeaf()) {
+      if (dimIdx != Integer.MIN_VALUE && aggregates != null) {
         out.writeBoolean(true);
         aggregates.write(out);
       } else {
@@ -497,7 +497,7 @@ public class QCTree implements Writable {
       }
       sb.append(header);
       sb.append(" = ").append(dimValue).append('\n');
-      if (isLeaf()) {
+      if (aggregates != null) {
         for (Entry<String, Aggregable> aggr : aggregates.get().entrySet()) {
           sb.append(aggr.getKey()).append(':');
           sb.append(aggr.getValue().getAggregateValue()).append('\n');

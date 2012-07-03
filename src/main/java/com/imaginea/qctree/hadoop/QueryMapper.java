@@ -46,7 +46,7 @@ public class QueryMapper extends
     if (node == null) {
       LOG.info("No results.");
     } else {
-      while (!node.isLeaf()) {
+      while (node.getAggregates() == null) {
         node = node.getLastChild();
       }
       context.write(KEY, node.getAggregates());
@@ -54,7 +54,8 @@ public class QueryMapper extends
   }
 
   private QCNode searchRoute(QCNode node, int dimIdx, String dimVal) {
-    if (node.isLeaf()) {
+
+    if (node.getDimIdx() == dimIdx && node.getDimValue().equals(dimVal)) {
       return node;
     }
 
@@ -73,7 +74,7 @@ public class QueryMapper extends
     }
 
     QCNode lastChild = node.getLastChild();
-    if (lastChild.getDimIdx() < dimIdx) {
+    if (lastChild != null && lastChild.getDimIdx() < dimIdx) {
       return searchRoute(lastChild, dimIdx, dimVal);
     } else {
       return null;
