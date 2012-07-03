@@ -6,11 +6,6 @@
     <format>tar.gz</format>
   </formats>
   <fileSets>
-    <fileSet>
-    	<includes>
-      		<include>README*</include>
-    	</includes>
-  	</fileSet>
   	<fileSet>
     	<directory>src/bin</directory>
     	<outputDirectory>bin</outputDirectory>
