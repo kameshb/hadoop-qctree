@@ -21,6 +21,11 @@ hadoop-qctree provides QC-tree construction using Hadoop.
 <p>Untar the tar ball and move to hadoop-qctree-* directory.</p>
 
 <p>To build a qc-tree for the given input, execute the following command</p>
-<i><b>bin/qctree.sh input output</b></i>
+<i><b>bin/qctree.sh input-file output-dir</b></i>
+<p>Once QC-tree construction is over, to run any query execute the following command</p>
+<i><b>bin/query.sh output-of-previous-job output-dir query-tobe-run</b></i>
+<p>As of now, query should be given as a single string, dimensions separated by comma(,)</p>
+<p>Example query: "S2,*,s"</p>
+
 
 
