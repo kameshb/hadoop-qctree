@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
 import java.util.SortedSet;
@@ -22,6 +23,7 @@ import com.imaginea.qctree.Cell;
 import com.imaginea.qctree.Class;
 import com.imaginea.qctree.QCCube;
 import com.imaginea.qctree.Table;
+import com.imaginea.qctree.measures.Aggregable;
 import com.imaginea.qctree.measures.Aggregates;
 
 /**
@@ -299,23 +301,23 @@ public class QCTree implements Writable {
       if (!node1.isLeaf()) {
         queue1.addAll(node1.children);
       }
-      if(node1.hasDDLinks()) {
+      if (node1.hasDDLinks()) {
         queue1.addAll(node1.ddLink);
       }
-      
+
       QCNode node2 = queue2.poll();
       if (!node2.isLeaf()) {
         queue2.addAll(node2.children);
       }
-      if(node2.hasDDLinks()) {
+      if (node2.hasDDLinks()) {
         queue2.addAll(node2.ddLink);
       }
-      
+
       if (!node1.equals(node2)) {
         return false;
       }
     }
-    //If either of the queue is non-empty, return false.
+    // If either of the queue is non-empty, return false.
     return queue1.isEmpty() & queue2.isEmpty();
   }
 
@@ -467,14 +469,14 @@ public class QCTree implements Writable {
         header = Table.getTable().getDimensionHeaderAt(dimIdx);
       }
       sb.append(header);
-      sb.append(" = ").append(dimValue);
+      sb.append(" = ").append(dimValue).append('\n');
       if (isLeaf()) {
-        sb.append(" Aggregates: ");
-        String aggName = aggregates.get().get(0).getClass().getSimpleName();
-        double aggVal = aggregates.get().get(0).getAggregateValue();
-        sb.append(aggName).append(':').append(aggVal);
+        for (Entry<String, Aggregable> aggr : aggregates.get().entrySet()) {
+          sb.append(aggr.getKey()).append(':');
+          sb.append(aggr.getValue().getAggregateValue()).append('\n');
+        }
       }
-      return sb.toString();
+      return sb.substring(0, sb.length() - 1);
     }
   }
 
