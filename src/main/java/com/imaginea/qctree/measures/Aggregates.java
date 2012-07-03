@@ -42,9 +42,11 @@ public class Aggregates implements Writable {
 
   @Override
   public void readFields(DataInput in) throws IOException {
-    String key = WritableUtils.readString(in);
-    Aggregable aggregable = aggregates.get(key);
-    aggregable.readFields(in);
+    for(int i = 0; i < aggregates.size(); ++i) {
+      String key = WritableUtils.readString(in);
+      Aggregable aggregable = aggregates.get(key);
+      aggregable.readFields(in);
+    }
   }
 
   @Override
