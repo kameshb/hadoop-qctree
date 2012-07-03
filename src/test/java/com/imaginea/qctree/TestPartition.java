@@ -2,12 +2,21 @@ package com.imaginea.qctree;
 
 import static com.imaginea.qctree.Cell.DIMENSION_VALUE_ANY;
 
+import java.util.Map;
+import java.util.Map.Entry;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.imaginea.qctree.measures.Aggregable;
 import com.imaginea.qctree.measures.Aggregates;
+import com.imaginea.qctree.measures.Average;
+import com.imaginea.qctree.measures.Count;
+import com.imaginea.qctree.measures.Maximum;
+import com.imaginea.qctree.measures.Minimum;
+import com.imaginea.qctree.measures.Sum;
 
 public class TestPartition {
 
@@ -65,7 +74,24 @@ public class TestPartition {
     Class temp = new Class(partition);
     temp.computeAggregates();
     Aggregates aggregates = temp.getAggregates();
-    double v = aggregates.get().values().iterator().next().getAggregateValue();
-    Assert.assertEquals(9d, v, 0.0d);
+    Map<String, Aggregable> aggrMap = aggregates.get();
+
+    for (Entry<String, Aggregable> aggr : aggrMap.entrySet()) {
+      if (aggr.getKey().equals(Average.class.getSimpleName())) {
+        Assert.assertEquals(9d, aggr.getValue().getAggregateValue(), 0d);
+      }
+      if (aggr.getKey().equals(Sum.class.getSimpleName())) {
+        Assert.assertEquals(18d, aggr.getValue().getAggregateValue(), 0d);
+      }
+      if (aggr.getKey().equals(Maximum.class.getSimpleName())) {
+        Assert.assertEquals(12d, aggr.getValue().getAggregateValue(), 0d);
+      }
+      if (aggr.getKey().equals(Minimum.class.getSimpleName())) {
+        Assert.assertEquals(6d, aggr.getValue().getAggregateValue(), 0d);
+      }
+      if (aggr.getKey().equals(Count.class.getSimpleName())) {
+        Assert.assertEquals(2d, aggr.getValue().getAggregateValue(), 0d);
+      }
+    }
   }
 }
