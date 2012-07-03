@@ -13,7 +13,7 @@ import com.imaginea.qctree.Row;
 public class Minimum implements Aggregable {
 
   private static final Log LOG = LogFactory.getLog(Minimum.class);
-  private double min;
+  private double min = Double.MAX_VALUE;
 
   @Override
   public void readFields(DataInput in) throws IOException {
@@ -29,20 +29,16 @@ public class Minimum implements Aggregable {
   public void aggregate(List<Row> rows) {
     LOG.info("Computing Minimum Aggregate");
 
-    double min = Double.MAX_VALUE;
     for (Row row : rows) {
       for (double value : row.getMeasures()) {
-        if (value < min) {
-          min = value;
-        }
+        this.min = Math.min(this.min, value);
       }
     }
-    this.min = min;
   }
 
   @Override
   public double getAggregateValue() {
-    return min;
+    return this.min;
   }
 
   @Override
@@ -50,10 +46,10 @@ public class Minimum implements Aggregable {
     Minimum otherMin = (Minimum) other;
     this.min = Math.min(this.min, otherMin.min);
   }
-  
+
   @Override
   public String toString() {
-    return String.valueOf(min);
+    return String.valueOf(this.min);
   }
 
 }

@@ -14,7 +14,7 @@ public class Maximum implements Aggregable {
 
   private static final Log LOG = LogFactory.getLog(Maximum.class);
 
-  private double max;
+  private double max = Double.MIN_VALUE;
 
   @Override
   public void readFields(DataInput in) throws IOException {
@@ -30,15 +30,11 @@ public class Maximum implements Aggregable {
   public void aggregate(List<Row> rows) {
     LOG.info("Computing Maximum Aggregate");
 
-    double max = Double.MIN_VALUE;
     for (Row row : rows) {
       for (double value : row.getMeasures()) {
-        if (value > max) {
-          max = value;
-        }
+        max = Math.max(max, value);
       }
     }
-    this.max = max;
   }
 
   @Override
