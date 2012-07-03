@@ -18,7 +18,7 @@ hadoop-qctree provides QC-tree construction using Hadoop.
 
 <h3>How to Run</h3>
 <h4>Local Mode</h4>
-<p>Untar the tar ball and move to hadoop-qctree-* directory.</p>
+<p>Untar the tar ball and move to hadoop-qctree-* directory. Need to update the table.json in the conf directory as per input structure</p>
 
 <p>To build a qc-tree for the given input, execute the following command</p>
 <i><b>bin/qctree.sh input-file output-dir</b></i>
