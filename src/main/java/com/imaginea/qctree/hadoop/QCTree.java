@@ -40,7 +40,34 @@ public class QCTree implements Writable {
   private final QCNode root;
 
   public QCTree(Class clazz) {
-    root = new QCNode(-1, Cell.DIMENSION_VALUE_ANY);
+    if (clazz.getUpperBound().equals(Cell.ROOT)) {
+      root = new QCNode(-1, Cell.DIMENSION_VALUE_ANY);
+    } else {
+      String[] dimensions = clazz.getUpperBound().getDimensions();
+      int idx;
+      for (idx = 0; idx < dimensions.length; ++idx) {
+        if (!dimensions[idx].equals(Cell.DIMENSION_VALUE_ANY)) {
+          break;
+        }
+      }
+      root = new QCNode(idx, dimensions[idx]);
+      QCNode parent = root;
+      QCNode temp;
+
+      for (int i = idx + 1; i < dimensions.length; ++i) {
+        if (!dimensions[i].equals(Cell.DIMENSION_VALUE_ANY)) {
+          temp = new QCNode(i, dimensions[i]);
+          if (parent.isLeaf()) {
+            parent.children = new TreeSet<QCTree.QCNode>();
+          }
+          parent.children.add(temp);
+          temp.parent = parent;
+          parent = temp;
+        }
+      }
+      // Leaf Node
+      parent.setAggregates(clazz.getAggregates());
+    }
   }
 
   public QCTree() {
