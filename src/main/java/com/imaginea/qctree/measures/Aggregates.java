@@ -20,6 +20,10 @@ public class Aggregates implements Writable {
   public Aggregates() {
     aggregates = new HashMap<String, Aggregable>();
     aggregates.put(Average.class.getSimpleName(), new Average());
+    aggregates.put(Sum.class.getSimpleName(), new Sum());
+    aggregates.put(Maximum.class.getSimpleName(), new Maximum());
+    aggregates.put(Minimum.class.getSimpleName(), new Minimum());
+    aggregates.put(Count.class.getSimpleName(), new Count());
   }
 
   public void addAggregate(Aggregable aggr) {
@@ -53,11 +57,11 @@ public class Aggregates implements Writable {
 
   public void accumalate(Aggregates other) {
     for (Entry<String, Aggregable> aggr : aggregates.entrySet()) {
-      Aggregable otherAggr = other.aggregates.get(aggr.getKey());  
+      Aggregable otherAggr = other.aggregates.get(aggr.getKey());
       aggr.getValue().accumalate(otherAggr);
     }
   }
-  
+
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
@@ -66,7 +70,6 @@ public class Aggregates implements Writable {
       sb.append(aggr.getValue().toString());
       sb.append('\n');
     }
-    sb.substring(0, sb.length());
-    return sb.substring(0, sb.length());
+    return sb.substring(0, sb.length() - 1);
   }
 }
