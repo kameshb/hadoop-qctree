@@ -27,8 +27,9 @@ public class Sum implements Aggregable {
 
   @Override
   public void aggregate(List<Row> rows) {
-    LOG.info("Computing Sum Aggregate");
-
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Computing Sum Aggregate");
+    }
     double sum = 0;
     for (Row row : rows) {
       for (double value : row.getMeasures()) {

@@ -28,8 +28,9 @@ public class Maximum implements Aggregable {
 
   @Override
   public void aggregate(List<Row> rows) {
-    LOG.info("Computing Maximum Aggregate");
-
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Computing Maximum Aggregate");
+    }
     for (Row row : rows) {
       for (double value : row.getMeasures()) {
         max = Math.max(max, value);

@@ -27,7 +27,9 @@ public class Count implements Aggregable {
 
   @Override
   public void aggregate(List<Row> rows) {
-    LOG.info("Computing Count Aggregate");
+    if (LOG.isDebugEnabled()) {
+      LOG.info("Computing Count Aggregate");
+    }
     this.count = rows.size();
   }
 
@@ -41,7 +43,7 @@ public class Count implements Aggregable {
     Count otherCount = (Count) other;
     this.count += otherCount.count;
   }
-  
+
   @Override
   public String toString() {
     return String.valueOf(count);

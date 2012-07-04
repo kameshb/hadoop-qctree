@@ -27,8 +27,9 @@ public class Minimum implements Aggregable {
 
   @Override
   public void aggregate(List<Row> rows) {
-    LOG.info("Computing Minimum Aggregate");
-
+    if (LOG.isDebugEnabled()) {
+      LOG.info("Computing Minimum Aggregate");
+    }
     for (Row row : rows) {
       for (double value : row.getMeasures()) {
         this.min = Math.min(this.min, value);

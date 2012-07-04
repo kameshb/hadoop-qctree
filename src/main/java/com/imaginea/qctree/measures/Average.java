@@ -20,8 +20,9 @@ public class Average implements Aggregable {
 
   @Override
   public void aggregate(List<Row> rows) {
-    LOG.info("Computing Average Aggregate");
-
+    if (LOG.isDebugEnabled()) {
+      LOG.info("Computing Average Aggregate");
+    }
     double sum = 0;
     int noOfEntries = 0;
     for (Row row : rows) {
