@@ -2,7 +2,7 @@ bin=`dirname "${BASH_SOURCE-$0}"`
 bin=`cd "$bin"; pwd`
 
 if [ $# = 0 ]; then
-  echo "Usage: qctree input output"
+  echo "Usage: qctree input output noOfRows"
   exit 1
 fi
 
