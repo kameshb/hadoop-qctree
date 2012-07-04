@@ -34,9 +34,9 @@ public class QCDriver implements Tool {
     qcJob.setOutputValueClass(QCTree.class);
     qcJob.setInputFormatClass(NLineInputFormat.class);
     qcJob.setOutputFormatClass(SequenceFileOutputFormat.class);
-    FileOutputFormat.setOutputPath(qcJob, new Path(args[1]));
     NLineInputFormat.setInputPaths(qcJob, args[0]);
-    NLineInputFormat.setNumLinesPerSplit(qcJob, 10000);
+    FileOutputFormat.setOutputPath(qcJob, new Path(args[1]));
+    NLineInputFormat.setNumLinesPerSplit(qcJob, Integer.valueOf(args[2]));
     return qcJob.waitForCompletion(true) ? 0 : -1;
   }
 
