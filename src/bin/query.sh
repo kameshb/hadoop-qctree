@@ -19,10 +19,13 @@ JAVA=$JAVA_HOME/bin/java
 
 QCT_HOME="$bin"/..
 
+QCT_OPTS="-files=$QCT_HOME/conf/table.json"
+QCT_OPTS="$QCT_OPTS -libjars=$QCT_HOME/lib/gson-2.2.1.jar"
+
 CLASSPATH="${QCT_HOME}/conf"
 CLASSPATH=${CLASSPATH}:"$QCT_HOME/lib/*"
 
 CLASS='com.imaginea.qctree.hadoop.QueryDriver'
 
-exec "$JAVA" -classpath "$CLASSPATH" $CLASS "$@"
+exec "$JAVA" -classpath "$CLASSPATH" $CLASS $QCT_OPTS "$@"
 
