@@ -43,7 +43,7 @@ public class QueryDriver implements Tool {
 
     Path input = new Path(args[0]);
     Path output = new Path(args[1]);
-    getConf().set("query", args[2]);
+    query.getConfiguration().set("query", args[2]);
 
     FileInputFormat.setInputPaths(query, input);
     FileOutputFormat.setOutputPath(query, output);
