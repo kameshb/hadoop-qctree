@@ -3,22 +3,19 @@ package com.imaginea.qctree.measures;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.io.WritableUtils;
-
-import com.imaginea.qctree.Row;
 
 public class Aggregates implements Writable {
 
   private final Map<String, Aggregable> aggregates;
 
   public Aggregates() {
-    aggregates = new HashMap<String, Aggregable>();
+    aggregates = new LinkedHashMap<String, Aggregable>(5);
     aggregates.put(Average.class.getSimpleName(), new Average());
     aggregates.put(Sum.class.getSimpleName(), new Sum());
     aggregates.put(Maximum.class.getSimpleName(), new Maximum());
@@ -30,9 +27,11 @@ public class Aggregates implements Writable {
     aggregates.put(aggr.getClass().getSimpleName(), aggr);
   }
 
-  public void compute(List<Row> rows) {
+  public void compute(Map<Integer, List<Double>> measures) {
     for (Aggregable aggr : aggregates.values()) {
-      aggr.aggregate(rows);
+      for (Entry<Integer, List<Double>> measure : measures.entrySet()) {
+        aggr.aggregate(measure.getValue());
+      }
     }
   }
 
@@ -42,18 +41,15 @@ public class Aggregates implements Writable {
 
   @Override
   public void readFields(DataInput in) throws IOException {
-    for(int i = 0; i < aggregates.size(); ++i) {
-      String key = WritableUtils.readString(in);
-      Aggregable aggregable = aggregates.get(key);
-      aggregable.readFields(in);
+    for (Aggregable aggr : aggregates.values()) {
+      aggr.readFields(in);
     }
   }
 
   @Override
   public void write(DataOutput out) throws IOException {
-    for (Entry<String, Aggregable> aggr : aggregates.entrySet()) {
-      WritableUtils.writeString(out, aggr.getKey());
-      aggr.getValue().write(out);
+    for (Aggregable aggr : aggregates.values()) {
+      aggr.write(out);
     }
   }
 

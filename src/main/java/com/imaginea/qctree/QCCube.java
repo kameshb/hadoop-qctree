@@ -18,15 +18,9 @@ public class QCCube {
   }
 
   public static QCCube construct() {
-    Table table = Table.getTable();
-    String[] rootStr = new String[table.getDimensionHeaders().size()];
-    for (int i = 0; i < rootStr.length; ++i) {
-      rootStr[i] = Cell.DIMENSION_VALUE_ANY;
-    }
-    Cell root = new Cell(rootStr);
-    Partition base = new Partition(table.getRows(), table.getColumns());
+    Partition base = Partition.inducedBy(Cell.ROOT);
     QCCube cube = new QCCube();
-    cube.DFS(root, base, 0, null);
+    cube.DFS(Cell.ROOT, base, 0, null);
     return cube;
   }
 
@@ -54,11 +48,13 @@ public class QCCube {
       }
       for (String column : partition.getUniqueColumnValues(j)) {
         c.setDimensionAt(j, column);
-        Partition part = Partition.inducedBy(c);
+        Partition part = Partition.inducedBy(c, partition.getRows());
         if (!part.isEmpty()) {
           DFS(c, part, j, clazz);
         }
       }
     }
+    // We can clear the data, as it is of no use
+    partition.clear();
   }
 }

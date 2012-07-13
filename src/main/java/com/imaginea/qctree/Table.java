@@ -4,12 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import com.google.gson.Gson;
 import com.google.gson.annotations.Expose;
@@ -42,12 +38,8 @@ public class Table {
   @Expose
   private final List<Row> rows;
 
-  @Expose
-  private final Map<Integer, Set<String>> cols;
-
   private Table() {
     rows = new LinkedList<Row>();
-    cols = new LinkedHashMap<Integer, Set<String>>();
   }
 
   public List<String> getDimensionHeaders() {
@@ -68,27 +60,13 @@ public class Table {
 
   public void addRow(Row row) {
     rows.add(row);
-    String[] colValues = row.getDimensions();
-    Set<String> colList;
-    for (int i = 0; i < colValues.length; ++i) {
-      if (cols.get(Integer.valueOf(i)) == null) {
-        colList = new LinkedHashSet<String>();
-        cols.put(Integer.valueOf(i), colList);
-      }
-      cols.get(Integer.valueOf(i)).add(colValues[i]);
-    }
   }
 
   public List<Row> getRows() {
     return Collections.unmodifiableList(rows);
   }
 
-  public Map<Integer, Set<String>> getColumns() {
-    return Collections.unmodifiableMap(cols);
-  }
-
   public void clear() {
     rows.clear();
-    cols.clear();
   }
 }

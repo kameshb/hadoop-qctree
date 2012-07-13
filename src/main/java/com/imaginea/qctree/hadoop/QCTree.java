@@ -99,8 +99,9 @@ public class QCTree implements Writable {
   public void addDrillDownLink(Class clazz) {
     Cell chdUB = clazz.getChild().getUpperBound();
     Cell curLB = clazz.getLowerBound();
-    LOG.info("Adding drill down link between : " + chdUB + " and " + curLB);
-
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Adding drill down link between : " + chdUB + " and " + curLB);
+    }
     String[] dimensions = clazz.getUpperBound().getDimensions();
     String[] dim = new String[dimensions.length];
     System.arraycopy(Cell.ROOT.getDimensions(), 0, dim, 0, dim.length);
@@ -150,7 +151,9 @@ public class QCTree implements Writable {
   }
 
   public boolean add(Class clazz) {
-    LOG.info("Adding tree edge : " + clazz);
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Adding tree edge : " + clazz);
+    }
     String[] dimensions = clazz.getUpperBound().getDimensions();
     QCNode parent = root;
     int idx;
@@ -345,7 +348,7 @@ public class QCTree implements Writable {
       }
     }
     // If either of the queue is non-empty, return false.
-    return queue1.isEmpty() & queue2.isEmpty();
+    return queue1.isEmpty() && queue2.isEmpty();
   }
 
   @Override

@@ -59,7 +59,7 @@ public class Class implements Comparable<Class> {
   }
 
   public void computeAggregates() {
-    aggregates.compute(partition.getBaseCells());
+    aggregates.compute(partition.getMeasures());
   }
 
   private String getDimensionValueAt(int colIndex) {

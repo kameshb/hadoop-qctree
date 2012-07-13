@@ -9,8 +9,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.io.WritableUtils;
 
-import com.imaginea.qctree.Row;
-
 public class Average implements Aggregable {
 
   private static final Log LOG = LogFactory.getLog(Average.class);
@@ -19,17 +17,15 @@ public class Average implements Aggregable {
   private double sum;
 
   @Override
-  public void aggregate(List<Row> rows) {
+  public void aggregate(List<Double> measures) {
     if (LOG.isDebugEnabled()) {
-      LOG.info("Computing Average Aggregate");
+      LOG.debug("Computing Average Aggregate");
     }
     double sum = 0;
     int noOfEntries = 0;
-    for (Row row : rows) {
-      for (Double value : row.getMeasures()) {
-        sum += value;
-        ++noOfEntries;
-      }
+    for (Double value : measures) {
+      sum += value;
+      ++noOfEntries;
     }
     this.sum = sum;
     this.noOfrows = noOfEntries;

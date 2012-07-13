@@ -4,6 +4,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.MRJobConfig;
 import org.apache.hadoop.mapreduce.lib.input.NLineInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
@@ -27,6 +28,7 @@ public class QCDriver implements Tool {
   @Override
   public int run(String[] args) throws Exception {
     Job qcJob = Job.getInstance(getConf(), "Quotient Cube");
+    qcJob.getConfiguration().setLong(MRJobConfig.TASK_TIMEOUT, 0);
     qcJob.setJarByClass(QCDriver.class);
     qcJob.setMapperClass(QCMapper.class);
     qcJob.setNumReduceTasks(0);

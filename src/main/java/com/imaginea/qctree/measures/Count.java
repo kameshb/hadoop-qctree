@@ -8,8 +8,6 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.imaginea.qctree.Row;
-
 public class Count implements Aggregable {
 
   private static final Log LOG = LogFactory.getLog(Count.class);
@@ -26,11 +24,11 @@ public class Count implements Aggregable {
   }
 
   @Override
-  public void aggregate(List<Row> rows) {
+  public void aggregate(List<Double> measures) {
     if (LOG.isDebugEnabled()) {
-      LOG.info("Computing Count Aggregate");
+      LOG.debug("Computing Count Aggregate");
     }
-    this.count = rows.size();
+    this.count = measures.size();
   }
 
   @Override

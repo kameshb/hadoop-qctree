@@ -31,8 +31,7 @@ public class Cell implements WritableComparable<Cell> {
   protected String[] dimensions;
   
   public Cell() {
-    dimensions = new String[ROOT.dimensions.length];
-    System.arraycopy(ROOT.dimensions, 0, dimensions, 0, dimensions.length);
+    this(ROOT.dimensions);
   }
 
   public Cell(String[] dims) {
@@ -41,8 +40,7 @@ public class Cell implements WritableComparable<Cell> {
   }
 
   public Cell(Cell cell) {
-    dimensions = new String[cell.dimensions.length];
-    System.arraycopy(cell.dimensions, 0, dimensions, 0, dimensions.length);
+    this(cell.dimensions);
   }
 
   public void setDimensionAt(int index, String dimValue) {

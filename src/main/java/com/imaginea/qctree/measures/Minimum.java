@@ -8,8 +8,6 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.imaginea.qctree.Row;
-
 public class Minimum implements Aggregable {
 
   private static final Log LOG = LogFactory.getLog(Minimum.class);
@@ -26,14 +24,12 @@ public class Minimum implements Aggregable {
   }
 
   @Override
-  public void aggregate(List<Row> rows) {
+  public void aggregate(List<Double> measures) {
     if (LOG.isDebugEnabled()) {
-      LOG.info("Computing Minimum Aggregate");
+      LOG.debug("Computing Minimum Aggregate");
     }
-    for (Row row : rows) {
-      for (double value : row.getMeasures()) {
-        this.min = Math.min(this.min, value);
-      }
+    for (double value : measures) {
+      this.min = Math.min(this.min, value);
     }
   }
 
