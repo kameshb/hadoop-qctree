@@ -36,7 +36,8 @@ public class QCTree implements Writable {
   private static final Log LOG = LogFactory.getLog(QCTree.class);
   private static final String NONE = "NONE";
   private static final String EMPTY = "";
-  private final QCNode MARKER = new QCNode(Integer.MIN_VALUE, EMPTY);
+  private static final int MARKER_DIM_INDEX = -2;
+  private final QCNode MARKER = new QCNode(MARKER_DIM_INDEX, EMPTY);
   private final QCNode root;
 
   public QCTree(Class clazz) {
@@ -445,7 +446,7 @@ public class QCTree implements Writable {
       WritableUtils.writeVInt(out, dimIdx);
       WritableUtils.writeString(out, dimValue);
 
-      if (dimIdx != Integer.MIN_VALUE && aggregates != null) {
+      if (dimIdx != MARKER_DIM_INDEX && aggregates != null) {
         out.writeBoolean(true);
         aggregates.write(out);
       } else {
