@@ -46,5 +46,4 @@ public class Count implements Aggregable {
   public String toString() {
     return String.valueOf(count);
   }
-
 }

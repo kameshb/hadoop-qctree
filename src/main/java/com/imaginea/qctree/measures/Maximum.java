@@ -47,7 +47,6 @@ public class Maximum implements Aggregable {
 
   @Override
   public String toString() {
-    return String.valueOf(max);
+    return String.valueOf(Aggregates.FORMAT.format(max));
   }
-
 }

@@ -48,7 +48,7 @@ public class Sum implements Aggregable {
 
   @Override
   public String toString() {
-    return String.valueOf(sum);
+    return String.valueOf(Aggregates.FORMAT.format(sum));
   }
 
 }

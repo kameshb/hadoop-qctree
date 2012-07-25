@@ -504,7 +504,7 @@ public class QCTree implements Writable {
       if (aggregates != null) {
         for (Entry<String, Aggregable> aggr : aggregates.get().entrySet()) {
           sb.append(aggr.getKey()).append(':');
-          sb.append(aggr.getValue().getAggregateValue()).append('\n');
+          sb.append(aggr.getValue()).append('\n');
         }
       }
       return sb.substring(0, sb.length() - 1);

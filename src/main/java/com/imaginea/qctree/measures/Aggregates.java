@@ -3,6 +3,7 @@ package com.imaginea.qctree.measures;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,7 @@ import org.apache.hadoop.io.Writable;
 public class Aggregates implements Writable {
 
   private final Map<String, Aggregable> aggregates;
+  public static final DecimalFormat FORMAT = new DecimalFormat("#.##");
 
   public Aggregates() {
     aggregates = new LinkedHashMap<String, Aggregable>(5);

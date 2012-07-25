@@ -46,7 +46,6 @@ public class Minimum implements Aggregable {
 
   @Override
   public String toString() {
-    return String.valueOf(this.min);
+    return String.valueOf(Aggregates.FORMAT.format(min));
   }
-
 }

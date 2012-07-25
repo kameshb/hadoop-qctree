@@ -21,14 +21,10 @@ public class Average implements Aggregable {
     if (LOG.isDebugEnabled()) {
       LOG.debug("Computing Average Aggregate");
     }
-    double sum = 0;
-    int noOfEntries = 0;
     for (Double value : measures) {
       sum += value;
-      ++noOfEntries;
+      ++noOfrows;
     }
-    this.sum = sum;
-    this.noOfrows = noOfEntries;
   }
 
   @Override
@@ -57,7 +53,7 @@ public class Average implements Aggregable {
 
   @Override
   public String toString() {
-    return String.valueOf(sum / noOfrows);
+    return String.valueOf(Aggregates.FORMAT.format(sum / noOfrows));
   }
 
 }
